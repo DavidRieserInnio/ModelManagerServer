@@ -8,7 +8,7 @@ namespace ModelManagerServer.St4
     /// <summary>
     ///     See ST4 Configurator: <see href="https://github.com/innio-etechnik/Configurator_V2/blob/master/Model/Config/Property.cs" />
     /// </summary>
-    internal class Property
+    public class Property
     {
         #region Properties
         // ReSharper disable InconsistentNaming

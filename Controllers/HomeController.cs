@@ -16,6 +16,10 @@ namespace ModelManagerServer.Controllers
 
         public IActionResult Index()
         {
+            return View();
+        }
+        
+        public IActionResult CreateModel() { 
             Model model = new()
             {
                 Name = "Test Model",
@@ -26,10 +30,7 @@ namespace ModelManagerServer.Controllers
                 CreationDateTime = DateTime.Now,
                 Rules = new List<Rule>(),
                 TemplateValues = new List<TemplateValue>(),
-                Parts = new List<Part>(),
-            };
-            /*
-            model.Parts = new List<Part>()
+                Parts = new List<Part>()
             {
                 new Part()
                 {
@@ -108,8 +109,8 @@ namespace ModelManagerServer.Controllers
                         }
                     }
                 }
+            }
             };
-            */ 
 
             this.modelRepository.CreateModel(model);
 

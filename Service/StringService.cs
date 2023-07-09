@@ -1,14 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Text;
 
 namespace ModelManagerServer.Service
 {
     public static class StringService
     {
-        private static Delimiters DEFAULT_DELIMITERS = new('{', '}');
-
+        private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
+        
         public static string? ReplaceOccurrences(
             string template, Func<string, string?> resolver
         )
@@ -20,7 +17,7 @@ namespace ModelManagerServer.Service
             string template, Func<string, string?> resolver, Delimiters delimiters
         )
         {
-            var expression_positions = FindExpressions(template, delimiters);
+            var expression_positions = FindExpressionPositions(template, delimiters);
             if (expression_positions.Count == 0) return null;
 
             var string_length = 0;
@@ -31,7 +28,7 @@ namespace ModelManagerServer.Service
                 var pos = expression_positions[i];
                 var prev_pos = i == 0 ? new ExpressionPosition(-1, -1) : expression_positions[i - 1];
 
-                var substring = template.AsSpan(pos.ExpressionStart, pos.Length).ToString();
+                var substring = template.Substring(pos.ExpressionStart, pos.Length); // Could be done using Span : .AsSpan(pos.ExpressionStart, pos.Length);
                 var replacement = resolver(substring) ?? throw InvalidExpressionException.MissingLookupValue(substring);
                 replacements.Add(replacement);
 
@@ -55,7 +52,7 @@ namespace ModelManagerServer.Service
             return builder.ToString();
         }
 
-        private static List<ExpressionPosition> FindExpressions(string template, Delimiters delimiters)
+        private static List<ExpressionPosition> FindExpressionPositions(string template, Delimiters delimiters)
         {
             int start_pos, end_pos = 0;
             List<ExpressionPosition> expression_positions = new();
@@ -72,6 +69,12 @@ namespace ModelManagerServer.Service
             }
 
             return expression_positions;
+        }
+
+        public static List<string> FindExpressions(string template, Delimiters delimiters)
+        {
+            var positions = FindExpressionPositions(template, delimiters);
+            return positions.Select(e => template.AsSpan(e.ExpressionStart, e.Length).ToString()).ToList();
         }
 
         internal record struct ExpressionPosition(int StartPosition, int EndPosition)

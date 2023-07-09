@@ -13,7 +13,7 @@ namespace ModelManagerServer.St4
     /// <summary>
     ///     See ST4 Configurator: <see href="https://github.com/innio-etechnik/Configurator_V2/blob/master/Model/Config/Part.cs" />
     /// </summary>
-    internal class Part
+    public class Part
     {
         #region Properties
         public Guid Parts_Id { get; set; }

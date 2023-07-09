@@ -3,7 +3,7 @@ using System;
 
 namespace ModelManagerServer.St4
 {
-    internal class Milestone
+    public class Milestone
     {
         public Guid Milestones_Id { get; set; }
         public string Milestones_Name { get; set; }

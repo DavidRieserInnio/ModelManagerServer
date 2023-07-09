@@ -6,7 +6,7 @@ namespace ModelManagerServer.St4
     /// <summary>
     ///     See ST4 Configurator: <see href="https://github.com/innio-etechnik/Configurator_V2/blob/master/Model/Config/PartPermission.cs" />
     /// </summary>
-    internal class St4PartPermission
+    public class St4PartPermission
     {
         #region Properties DB
 

@@ -9,7 +9,7 @@ namespace ModelManagerServer.St4
     ///     See <see href="https://github.com/innio-etechnik/Configurator_V2/blob/master/Model/Config/ConfigVersion.cs">St4 Configurator</see>
     /// </summary>
     //ReSharper disable InconsistentNaming
-    internal class ConfigVersion
+    public class ConfigVersion
     {
         [Key]
         [Column(Order = 0)]
