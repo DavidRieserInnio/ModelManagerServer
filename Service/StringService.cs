@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using ModelManagerServer.Models;
+using System.Text;
 
 namespace ModelManagerServer.Service
 {
@@ -6,19 +7,22 @@ namespace ModelManagerServer.Service
     {
         private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
         
-        public static string? ReplaceOccurrences(
+        public static Result<string, InvalidExpressionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver
         )
         {
             return ReplaceOccurrences(template, resolver, DEFAULT_DELIMITERS);
         }
 
-        public static string? ReplaceOccurrences(
+        public static Result<string, InvalidExpressionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver, Delimiters delimiters
         )
         {
-            var expression_positions = FindExpressionPositions(template, delimiters);
-            if (expression_positions.Count == 0) return null;
+            var ret = FindExpressionPositions(template, delimiters);
+            if (ret.IsError) return ret.GetError();
+
+            var expression_positions = ret.Get();
+            if (expression_positions.Count == 0) return template;
 
             var string_length = 0;
             var replacements = new List<string>(expression_positions.Count);
@@ -28,8 +32,10 @@ namespace ModelManagerServer.Service
                 var pos = expression_positions[i];
                 var prev_pos = i == 0 ? new ExpressionPosition(-1, -1) : expression_positions[i - 1];
 
-                var substring = template.Substring(pos.ExpressionStart, pos.Length); // Could be done using Span : .AsSpan(pos.ExpressionStart, pos.Length);
-                var replacement = resolver(substring) ?? throw InvalidExpressionException.MissingLookupValue(substring);
+                var substring = template.Substring(pos.ExpressionStart, pos.Length);
+                var replacement = resolver(substring);
+                if (replacement == null) 
+                    return InvalidExpressionException.MissingLookupValue(substring);
                 replacements.Add(replacement);
 
                 string_length += (pos.StartPosition - prev_pos.EndPosition - 1) + replacement.Length;
@@ -52,7 +58,7 @@ namespace ModelManagerServer.Service
             return builder.ToString();
         }
 
-        private static List<ExpressionPosition> FindExpressionPositions(string template, Delimiters delimiters)
+        private static Result<List<ExpressionPosition>, InvalidExpressionException> FindExpressionPositions(string template, Delimiters delimiters)
         {
             int start_pos, end_pos = 0;
             List<ExpressionPosition> expression_positions = new();
@@ -63,7 +69,7 @@ namespace ModelManagerServer.Service
                 if (start_pos == -1) break;
 
                 end_pos = template.IndexOf(delimiters.EndChar, start_pos + 1);
-                if (end_pos == -1) throw InvalidExpressionException.OpenExpression(template, start_pos);
+                if (end_pos == -1) return InvalidExpressionException.OpenExpression(template, start_pos);
 
                 expression_positions.Add((start_pos, end_pos));
             }
@@ -71,10 +77,11 @@ namespace ModelManagerServer.Service
             return expression_positions;
         }
 
-        public static List<string> FindExpressions(string template, Delimiters delimiters)
+        public static Result<List<string>, InvalidExpressionException> FindExpressions(string template, Delimiters delimiters)
         {
             var positions = FindExpressionPositions(template, delimiters);
-            return positions.Select(e => template.AsSpan(e.ExpressionStart, e.Length).ToString()).ToList();
+            if (!positions.IsOk) return positions.GetError();
+            return positions.Get().Select(e => template.AsSpan(e.ExpressionStart, e.Length).ToString()).ToList();
         }
 
         internal record struct ExpressionPosition(int StartPosition, int EndPosition)

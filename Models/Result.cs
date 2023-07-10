@@ -38,7 +38,7 @@
 
         public static explicit operator E(Result<T, E> result)
         {
-            return result.TakeError();
+            return result.GetError();
         }
 
         public Result<TNew, E> Map<TNew>(Func<T, TNew> func)
@@ -83,7 +83,7 @@
             return this.IsOk ? (T)this.Value : default!;
         }
 
-        public E TakeError()
+        public E GetError()
         {
             if (this.IsOk)
                 throw new ArgumentException("Tried getting Error Value from Ok Result!");
@@ -119,17 +119,17 @@
     public static class ResultExtensions {
         public static Result<T, E> Flatten<T, E>(this Result<Result<T, E>, E> result)
         {
-            return result.IsOk ? result.Get() : Result<T, E>.Error(result.TakeError());
+            return result.IsOk ? result.Get() : Result<T, E>.Error(result.GetError());
         }
 
-        public static Option<T> Ok<T, E>(this Result<T, E> result) 
+        public static Option<T> Some<T, E>(this Result<T, E> result) 
         {
             return result.IsOk ? Option<T>.Some(result.Get()) : Option<T>.None;
         }
 
-        public static Option<E> Err<T, E>(this Result<T, E> result)
+        public static Option<E> SomeError<T, E>(this Result<T, E> result)
         {
-            return !result.IsOk ? Option<E>.Some(result.TakeError()) : Option<E>.None;
+            return !result.IsOk ? Option<E>.Some(result.GetError()) : Option<E>.None;
         }
     }
 }
