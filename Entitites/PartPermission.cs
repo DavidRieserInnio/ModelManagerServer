@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entitites
 {
-    [Table("Part_Permission", Schema = "modelmanager")]
+    [Table("Part_Permissions", Schema = "modelmanager")]
     public class PartPermission
     {
         [Key]
@@ -12,7 +12,10 @@ namespace ModelManagerServer.Entitites
         public St4Permission Type { get; set; }
         public Guid RightGroupId { get; set; }
 
-        public ICollection<Part> Parts { get; set; }
-        public virtual ICollection<RefPartPermission> RefPartPermissions { get; set; }
+        public Guid Part_Id { get; set; }
+        public int Part_Version { get; set; }
+
+        [ForeignKey("Part_Id,Part_Version")]
+        public Part Part { get; set; }
     }
 }

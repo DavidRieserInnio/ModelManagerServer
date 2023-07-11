@@ -3,16 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entitites
 {
-    [Table("Rule", Schema = "modelmanager")]
+    [Table("Rules", Schema = "modelmanager")]
     public class Rule
     {
         [Key]
         public Guid Rule_Id { get; set; }
         public string Name { get; set; }
-        public int Type { get; set; }
-        [Column("Rule")]
-        public string RuleContent { get; set; }
+        public string Rule_Content { get; set; }
+        public Guid? Model_Id { get; set; }
+        public int? Model_Version { get; set; }
 
-        public virtual ICollection<Model> Models { get; set; }
+        [ForeignKey("Model_Id,Model_Version")]
+        public Model? Model { get; set; }
     }
 }

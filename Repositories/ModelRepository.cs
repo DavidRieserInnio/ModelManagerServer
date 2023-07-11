@@ -26,15 +26,7 @@ namespace ModelManagerServer.Repositories
         public void CreateEnum(Entitites.Enum e)
         {
             this._ctx.Enums.Add(e);
-
-            foreach (var variant in e.Variants)
-            {
-                this._ctx.Add(variant);
-                foreach (var property in variant.EnumVariantProperties)
-                {
-                    this._ctx.EnumVariantProperties.Add(property);
-                }
-            }
+            this._ctx.AddRange(e.Properties);
 
             this._ctx.SaveChanges();
         }
