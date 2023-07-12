@@ -1,4 +1,4 @@
-﻿using ModelManagerServer.Entitites;
+﻿using ModelManagerServer.Entities;
 
 namespace ModelManagerServer.Repositories
 {
@@ -23,7 +23,7 @@ namespace ModelManagerServer.Repositories
             this._ctx.SaveChanges();
         }
 
-        public void CreateEnum(Entitites.Enum e)
+        public void CreateEnum(Entities.Enum e)
         {
             this._ctx.Enums.Add(e);
             this._ctx.AddRange(e.Properties);
