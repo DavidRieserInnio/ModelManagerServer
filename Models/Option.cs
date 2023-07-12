@@ -5,18 +5,48 @@ namespace ModelManagerServer.Models
     public readonly struct Option<T>
     {
         [MemberNotNullWhen(true, nameof(Value))]
-        // TODO: How does this work if Value is a struct?
-        public bool IsSome { get => this.Value is not null; }
+        public bool IsSome { get; }
         public bool IsNone { get => !this.IsSome; }
 
         private readonly T? Value;
 
-        private Option(T value) { 
-            this.Value = value; 
+        private Option(bool isSome, T? value)
+        {
+            this.IsSome = isSome;
+            this.Value = value;
         }
 
-        public static Option<T> Some(T value) => new(value);
-        public static Option<T> None => new(default!);
+        public Option(T value) {
+            var type = typeof(T);
+            this.Value = value;
+
+            // See https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
+            if (type.IsEnum)
+                // Enum
+                this.IsSome = value == null;
+            else if (type.IsValueType)
+                // Struct
+                this.IsSome = EqualityComparer<T>.Default.Equals(value, default);
+            else
+                // Class
+                this.IsSome = value is not null;
+        }
+
+        public static Option<C> From<C>(C value)
+            where C : class
+        {
+            return new Option<C>(value is not null, value!);
+        }
+
+        public static Option<S> FromStruct<S>(S value) 
+            where S: struct
+        {
+            bool isSome = EqualityComparer<S>.Default.Equals(value, default);
+            return new Option<S>(isSome, value);
+        }
+
+        public static Option<T> Some(T value) => new(true, value);
+        public static Option<T> None => new(false, default!);
 
         public static implicit operator Option<T>(T value) => new(value);
         public static explicit operator T(Option<T> option)
@@ -45,17 +75,17 @@ namespace ModelManagerServer.Models
             return this.IsSome ? this.Value : _default;
         }
 
-        public Option<T> Map(Func<T, T> mapper)
+        public Option<O> Map<O>(Func<T, O> mapper)
         {
-            return this.IsSome ? Option<T>.Some(mapper(this.Value)) : Option<T>.None;
+            return this.IsSome ? new Option<O>(mapper(this.Value)) : Option<O>.None;
         }
 
-        public T MapOr(Func<T, T> mapper, T _default)
+        public O MapOr<O>(Func<T, O> mapper, O _default)
         {
             return this.IsSome ? mapper(this.Value) : _default;
         }
 
-        public T MapOrElse(Func<T, T> mapper, Func<T> _default)
+        public O MapOrElse<O>(Func<T, O> mapper, Func<O> _default)
         {
             return this.IsSome ? mapper(this.Value) : _default();
         }

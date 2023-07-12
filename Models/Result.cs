@@ -4,90 +4,74 @@
     {
         public bool IsOk { get; }
         public bool IsError { get => !this.IsOk; }
-        private readonly object Value;
+
+        private readonly object _value;
 
         private Result(bool isOk, object value)
         {
             this.IsOk = isOk;
-            this.Value = value;
+            this._value = value;
         }
 
-        public static Result<T, E> Ok(T value)
-        {
-            return new Result<T, E>(true, value!);
-        }
-        public static Result<T, E> Error(E value)
-        {
-            return new Result<T, E>(false, value!);
-        }
+        public Result(T value) : this(true, value!) { }
+        public Result(E error) : this(false, error!) { }
 
-        public static implicit operator Result<T, E>(T value)
-        {
-            return Ok(value);
-        }
+        public static Result<T, E> Ok(T value) => new(value);
+        public static Result<T, E> Error(E error) => new(error);
 
-        public static implicit operator Result<T, E>(E error)
-        {
-            return Error(error);
-        }
+        public static implicit operator Result<T, E>(T value) => new(value);
+        public static implicit operator Result<T, E>(E error) => new(error);
 
-        public static explicit operator T(Result<T, E> result)
-        {
-            return result.Get();
-        }
-
-        public static explicit operator E(Result<T, E> result)
-        {
-            return result.GetError();
-        }
+        public static explicit operator T(Result<T, E> result) => result.Get();
+        public static explicit operator E(Result<T, E> result) => result.GetError();
 
         public Result<TNew, E> Map<TNew>(Func<T, TNew> func)
         {
-            return new Result<TNew, E>(this.IsOk, this.IsOk ? func((T)this.Value)! : this.Value);
+            return new Result<TNew, E>(this.IsOk, this.IsOk ? func((T)this._value)! : this._value);
         }
 
         public Result<T, ENew> MapError<ENew>(Func<E, ENew> func)
         {
-            return new Result<T, ENew>(this.IsOk, this.IsError ? func((E)this.Value)! : this.Value);
+            return new Result<T, ENew>(this.IsOk, this.IsError ? func((E)this._value)! : this._value);
         }
 
         public Result<T, ENew> MapOr<ENew>(T _default)
         {
-            return this.IsOk ? (T)this.Value : _default;
+            return this.IsOk ? (T)this._value : _default;
         }
 
         public Result<T, ENew> MapOrElse<ENew>(Func<E, T> _default)
         {
-            return this.IsOk ? (T)this.Value : _default((E)this.Value);
+            return this.IsOk ? (T)this._value : _default((E)this._value);
         }
 
         public T Get()
         {
             if (!this.IsOk)
                 throw new ArgumentException("Tried getting Ok Value from Error Result!");
-            return (T)this.Value;
+            return (T)this._value;
         }
 
         public T GetOr(T _default)
         {
-            return this.IsOk ? (T)this.Value : _default;
+            return this.IsOk ? (T)this._value : _default;
         }
 
         public T GetOrElse(Func<E, T> _default)
         {
-            return this.IsOk ? (T)this.Value : _default((E)this.Value);
+            return this.IsOk ? (T)this._value : _default((E)this._value);
         }
 
         public T GetOrDefault()
         {
-            return this.IsOk ? (T)this.Value : default!;
+            return this.IsOk ? (T)this._value : default!;
         }
 
         public E GetError()
         {
             if (this.IsOk)
                 throw new ArgumentException("Tried getting Error Value from Ok Result!");
-            return (E)this.Value;
+            return (E)this._value;
         }
 
         // override object.Equals
@@ -101,13 +85,21 @@
         // override object.GetHashCode
         public override int GetHashCode()
         {
-            return this.Value.GetHashCode();
+            return this._value.GetHashCode();
         }
 
         public static bool operator ==(Result<T, E> left, Result<T, E> right)
         {
-            if (left.IsOk != right.IsOk) return false;
-            return left.Value == right.Value;
+            if (left.IsOk)
+            {
+                if (right.IsOk)
+                    return EqualityComparer<T>.Default.Equals((T) left._value, (T) right._value);
+            }
+            else if (!right.IsOk)
+            {
+                return EqualityComparer<E>.Default.Equals((E) left._value, (E) right._value);
+            }
+            return false;
         }
 
         public static bool operator !=(Result<T, E> left, Result<T, E> right)
