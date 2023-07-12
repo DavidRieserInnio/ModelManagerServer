@@ -1,4 +1,6 @@
 ﻿using ModelManagerServer.Entities;
+using ModelManagerServer.Service;
+using System;
 
 namespace ModelManagerServer.Repositories
 {
@@ -9,6 +11,26 @@ namespace ModelManagerServer.Repositories
         public ModelRepository(ModelManagerContext ctx)
         {
             this._ctx = ctx;
+        }
+
+        public Model? FindModel(Guid id, int version)
+        {
+            return this._ctx.Models.First(m => m.Id == id && m.Version == version);
+        }
+
+        public List<Model>? FindModelWithVersions(Guid id)
+        {
+            return this._ctx.Models.Where(m => m.Id == id)
+                .CheckEmpty()?
+                .OrderBy(m => m.Version)
+                .ToList();
+        }
+
+        public List<List<Model>> FindAllModelsGroupedByVersion()
+        {
+            return this._ctx.Models.GroupBy(m => m.Id)
+                .Select(g => g.OrderBy(m => m.Version).ToList())
+                .ToList();
         }
 
         public List<Model> FindAllModels()

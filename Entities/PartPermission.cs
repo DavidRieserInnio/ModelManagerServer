@@ -8,6 +8,7 @@ namespace ModelManagerServer.Entities
     public class PartPermission
     {
         public Guid Id { get; set; }
+
         public St4Permission Type { get; set; }
         public Guid RightGroupId { get; set; }
 

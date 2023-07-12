@@ -1,4 +1,5 @@
 ﻿using ModelManagerServer.Models;
+using ModelManagerServer.Models.Exceptions;
 using System.Text;
 
 namespace ModelManagerServer.Service
@@ -7,14 +8,14 @@ namespace ModelManagerServer.Service
     {
         private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
         
-        public static Result<string, InvalidExpressionException> ReplaceOccurrences(
+        public static Result<string, Exception> ReplaceOccurrences(
             string template, Func<string, string?> resolver
         )
         {
             return ReplaceOccurrences(template, resolver, DEFAULT_DELIMITERS);
         }
 
-        public static Result<string, InvalidExpressionException> ReplaceOccurrences(
+        public static Result<string, Exception> ReplaceOccurrences(
             string template, Func<string, string?> resolver, Delimiters delimiters
         )
         {
@@ -34,8 +35,8 @@ namespace ModelManagerServer.Service
 
                 var substring = template.Substring(pos.ExpressionStart, pos.Length);
                 var replacement = resolver(substring);
-                if (replacement == null) 
-                    return InvalidExpressionException.MissingLookupValue(substring);
+                if (replacement == null)
+                    return new MissingSubstitutionException(replacement);
                 replacements.Add(replacement);
 
                 string_length += (pos.StartPosition - prev_pos.EndPosition - 1) + replacement.Length;
@@ -69,7 +70,7 @@ namespace ModelManagerServer.Service
                 if (start_pos == -1) break;
 
                 end_pos = template.IndexOf(delimiters.EndChar, start_pos + 1);
-                if (end_pos == -1) return InvalidExpressionException.OpenExpression(template, start_pos);
+                if (end_pos == -1) return (InvalidExpressionException) new OpenExpressionException(template, start_pos);
 
                 expression_positions.Add((start_pos, end_pos));
             }
@@ -82,61 +83,6 @@ namespace ModelManagerServer.Service
             var positions = FindExpressionPositions(template, delimiters);
             if (!positions.IsOk) return positions.GetError();
             return positions.Get().Select(e => template.AsSpan(e.ExpressionStart, e.Length).ToString()).ToList();
-        }
-
-        internal record struct ExpressionPosition(int StartPosition, int EndPosition)
-        {
-            public static implicit operator (int, int)(ExpressionPosition value)
-            {
-                return (value.StartPosition, value.EndPosition);
-            }
-
-            public static implicit operator ExpressionPosition((int, int) value)
-            {
-                return new ExpressionPosition(value.Item1, value.Item2);
-            }
-
-            public int ExpressionStart { get => this.StartPosition + 1; }
-            public int ExpressionEnd { get => this.EndPosition + 1; }
-
-
-            public int Length { get => this.EndPosition - this.StartPosition - 1; }
-            public int TotalLength { get => this.EndPosition - this.StartPosition + 1; }
-        }
-
-        public record struct Delimiters(char StartChar, char EndChar)
-        {
-            public static implicit operator (char, char)(Delimiters value)
-            {
-                return (value.StartChar, value.EndChar);
-            }
-
-            public static implicit operator Delimiters((char, char) value)
-            {
-                return new Delimiters(value.Item1, value.Item2);
-            }
-        }
-
-        public class InvalidExpressionException : Exception
-        {
-            public InvalidExpressionException(string message) : base(message) { }
-
-            public static InvalidExpressionException MissingLookupValue(string expression)
-            {
-                return new InvalidExpressionException($"Missing Value for Expression {{{expression}}}!");
-            }
-
-            public static InvalidExpressionException OpenExpression(string template, int position)
-            {
-                const string PREFIX = "Found open expression in string \"";
-
-                var pos = position + PREFIX.Length;
-                var padding = new StringBuilder(pos).Insert(0, " ", pos - 1).ToString();
-
-                var message = $"{PREFIX}{template}\"\n{padding}^";
-
-                return new InvalidExpressionException(message);
-            }
         }
     }
 }

@@ -7,11 +7,13 @@ namespace ModelManagerServer.Entities
     public class PartProperty
     {
         public Guid Id { get; set; }
+
         public string Name { get; set; }
         public string Value { get; set; }
-        public int PropertyPosition { get; set; }
+
         public Guid Part_Id { get; set; }
         public int Part_Version { get; set; }
+        public int PropertyPosition { get; set; }
 
         public Part Part { get; set; }
     }

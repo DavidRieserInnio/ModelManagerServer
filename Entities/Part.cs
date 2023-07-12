@@ -1,15 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ModelManagerServer.Models.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
 {
     [Table("Parts", Schema = "modelmanager")]
-    public class Part
+    public class Part : ISubstitutable<St4.Part>
     {
         public Guid Id { get; set; }
         public int Version { get; set; }
+
         public string Name { get; set; }
         public int Type { get; set; }
         public string ElementText { get; set; }
+
         public Guid? Rule_Id { get; set; }
         public Guid? Enum_Id { get; set; }
         public int? Enum_Version { get; set; }
@@ -21,5 +24,10 @@ namespace ModelManagerServer.Entities
         public virtual IList<PartPermission> PartPermissions { get; set; }
 
         public virtual IList<RefModelPart> RefModelsParts { get; set; }
+
+        public St4.Part Substitute(ISubstitutionProvider provider)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

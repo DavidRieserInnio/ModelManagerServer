@@ -1,14 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using ModelManagerServer.Models.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
 {
     [Table("Models", Schema = "modelmanager")]
-    public class Model
+    public class Model : ISubstitutable<IList<St4.Part>>
     {
         public Guid Id { get; set; }
         public int Version { get; set; }
+
         public string Name { get; set; }
         public int State { get; set; }
         public Guid CreatedByUserId { get; set; }
@@ -27,8 +27,14 @@ namespace ModelManagerServer.Entities
                  Model_Version = this.Version,
                  Part_Id = p.Id,
                  Part_Version = this.Version,
-                 Part_Position = i
+                 Part_Position = i,
             }).ToList();
+        }
+
+        public IList<St4.Part> Substitute(ISubstitutionProvider provider)
+        {
+            // TODO: Create wrapped SubstitutionProvider and add Provider for Model.TemplateValues
+            return this.Parts.Select(p => p.Substitute(provider)).ToList();
         }
     }
 }
