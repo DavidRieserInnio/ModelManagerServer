@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModelManagerServer.Entities;
+using ModelManagerServer.Models;
 using ModelManagerServer.Repositories;
+using ModelManagerServer.Service;
 
 namespace ModelManagerServer.Controllers
 {
@@ -33,7 +35,8 @@ namespace ModelManagerServer.Controllers
         )
         {
             Model? model = this._modelRepository.FindModel(modelId, modelVersion);
-            IList<St4.Part>? parts = model?.Substitute(null!);
+            DictionarySubstitutionProvider userValues = kvps.ToDictionary();
+            IList<St4.Part>? parts = model?.Substitute(userValues);
             // TODO
             return Json(new { });
         }

@@ -24,5 +24,10 @@ namespace ModelManagerServer.Models
                 ? result
                 : new MissingSubstitutionException(original);
         }
+
+        public static implicit operator DictionarySubstitutionProvider(Dictionary<string, string> kvps)
+        {
+            return new DictionarySubstitutionProvider(kvps);
+        }
     }
 }

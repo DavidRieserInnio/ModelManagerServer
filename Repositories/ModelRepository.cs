@@ -15,7 +15,7 @@ namespace ModelManagerServer.Repositories
 
         public Model? FindModel(Guid id, int version)
         {
-            return this._ctx.Models.First(m => m.Id == id && m.Version == version);
+            return this._ctx.Models.FirstOrDefault(m => m.Id == id && m.Version == version);
         }
 
         public List<Model>? FindModelWithVersions(Guid id)
