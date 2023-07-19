@@ -1,6 +1,5 @@
 ﻿using ModelManagerServer.Entities;
 using ModelManagerServer.Service;
-using System;
 
 namespace ModelManagerServer.Repositories
 {
@@ -21,8 +20,8 @@ namespace ModelManagerServer.Repositories
         public List<Model>? FindModelWithVersions(Guid id)
         {
             return this._ctx.Models.Where(m => m.Id == id)
-                .CheckEmpty()?
                 .OrderBy(m => m.Version)
+                .CheckEmpty()?
                 .ToList();
         }
 

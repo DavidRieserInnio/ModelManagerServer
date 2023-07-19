@@ -9,6 +9,9 @@ namespace ModelManagerServer.Models
 
         private readonly object _value;
 
+        public T OkValue { get => this.IsOk ? (T) this._value : default!; }
+        public E ErrorValue { get => this.IsError ? (E) this._value : default!; }
+
         private Result(bool isOk, object value)
         {
             this.IsOk = isOk;
@@ -107,13 +110,6 @@ namespace ModelManagerServer.Models
         public static bool operator !=(Result<T, E> left, Result<T, E> right)
         {
             return !(left == right);
-        }
-
-        public void Deconstruct(out bool isOk, out T ok, out E error)
-        {
-            isOk = this.IsOk;
-            ok = this.IsOk ? (T) this._value : default!;
-            error = this.IsError ? (E) this._value : default!;
         }
     }
 

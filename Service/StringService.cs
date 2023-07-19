@@ -35,8 +35,8 @@ namespace ModelManagerServer.Service
 
                 var substring = template.Substring(pos.ExpressionStart, pos.Length);
                 var replacement = resolver(substring);
-                if (replacement == null)
-                    return new MissingSubstitutionException(replacement);
+                if (replacement is null)
+                    return new MissingSubstitutionException(substring);
                 replacements.Add(replacement);
 
                 string_length += (pos.StartPosition - prev_pos.EndPosition - 1) + replacement.Length;
