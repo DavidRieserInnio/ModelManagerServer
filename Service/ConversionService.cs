@@ -28,25 +28,26 @@ namespace ModelManagerServer.Service
         )
         {
             var dict = templateValues.ToDictionary(t => t.Name, t => t.Value);
+            // NOTE: DictionarySubstitutionProvider takes a reference to the Dictionary.
+            //       This means changing the Dictionary also changes the DictionarySubstitutionProvider.
             DictionarySubstitutionProvider tv_provider = dict;
             var sub_provider = new SubstitutionProviderCollection(tv_provider, additionalSubstitutions);
-            Func<string, string> lookup = s => sub_provider.GetSubstitution(s).GetOr(null!);
 
             foreach (var tv in templateValues)
             {
                 uint i;
                 var (key, value) = (tv.Name, tv.Value);
+                var tempValue = value;
 
                 for (i = 0; i < max_substitution_depth; i++)
                 {
-                    var rep = StringService.ReplaceOccurrences(value, lookup);
+                    var rep = StringService.ReplaceOccurrences(tempValue, lookup);
                     if (rep.IsOk)
                     {
                         var newValue = rep.Get();
                         if (newValue is not null)
                         {
-                            value = newValue;
-                            dict[key] = newValue;
+                            tempValue = newValue;
                         }
                         else break;
                     } 
@@ -58,14 +59,16 @@ namespace ModelManagerServer.Service
                 }
 
                 if (i >= max_substitution_depth)
-                {
-                    // TODO: This Error Message prints the Value with already substituted Values
-                    //       but should print the original one without any substitutions.
+                    // TODO: Return Result?
                     throw new SubstitutionDepthException(value, max_substitution_depth);
-                }
+
+                // Override the Value in Dictionary with the fully substituted one.
+                dict[key] = tempValue;
             }
 
             return null!;
+        
+            string lookup(string s) => sub_provider.GetSubstitution(s).GetOr(null!);
         }
     }
 }

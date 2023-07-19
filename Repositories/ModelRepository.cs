@@ -37,9 +37,9 @@ namespace ModelManagerServer.Repositories
             return this._ctx.Models.ToList();
         }
 
-        public void CreateModel(Model model)
+        public void CreateModel(Model model, Guid userId)
         {
-            model.CreateReferences();
+            model.CreateReferences(userId);
             this._ctx.Models.Add(model);
             this._ctx.SaveChanges();
         }
