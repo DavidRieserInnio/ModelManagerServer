@@ -20,12 +20,12 @@ namespace ModelManagerServer.Entities
 
         public virtual List<RefModelPart> RefModelsParts { get; set; }
 
-        public void CreateReferences()
+        public void CreateReferences(Guid userId)
         {
             if (this.Id == Guid.Empty) 
                 this.Id = Guid.NewGuid();
             if (this.CreatedByUserId == Guid.Empty) 
-                this.CreatedByUserId = /* TODO */ Guid.NewGuid();
+                this.CreatedByUserId = userId;
             if (this.CreationDateTime == default) 
                 this.CreationDateTime = DateTime.Now;
 

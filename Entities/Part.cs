@@ -30,8 +30,10 @@ namespace ModelManagerServer.Entities
             if (this.Id == Guid.Empty) 
                 this.Id = Guid.NewGuid();
 
-            if (this.Enum != null) this.Enum.CreateReferences();
-            if (this.Rule != null) this.Rule.CreateReferences();
+            this.Enum?.CreateReferences();
+            this.Rule?.CreateReferences();
+            this.PartProperties.ForEach(p => p.CreateReferences());
+            this.PartPermissions.ForEach(p => p.CreateReferences());
 
             for (int i = 0; i < this.PartProperties.Count; i++)
                 this.PartProperties[i].PropertyPosition = i;
