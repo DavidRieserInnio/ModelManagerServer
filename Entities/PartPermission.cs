@@ -16,5 +16,11 @@ namespace ModelManagerServer.Entities
         public int Part_Version { get; set; }
 
         public Part Part { get; set; }
+
+        public void CreateReferences()
+        {
+            if (this.Id == Guid.Empty)
+                this.Id = Guid.NewGuid();
+        }
     }
 }

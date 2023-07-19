@@ -1,4 +1,6 @@
-﻿namespace ModelManagerServer.Models
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ModelManagerServer.Models
 {
     public readonly struct Result<T, E>
     {
@@ -105,6 +107,13 @@
         public static bool operator !=(Result<T, E> left, Result<T, E> right)
         {
             return !(left == right);
+        }
+
+        public void Deconstruct(out bool isOk, out T ok, out E error)
+        {
+            isOk = this.IsOk;
+            ok = this.IsOk ? (T) this._value : default!;
+            error = this.IsError ? (E) this._value : default!;
         }
     }
 

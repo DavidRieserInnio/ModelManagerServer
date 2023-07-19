@@ -15,5 +15,11 @@ namespace ModelManagerServer.Entities
 
         public virtual IList<Part> Parts { get; set; }
         public virtual Model? Model { get; set; }
+
+        public void CreateReferences()
+        {
+            if (this.Id == Guid.Empty)
+                this.Id = Guid.NewGuid();
+        }
     }
 }

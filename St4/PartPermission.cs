@@ -6,7 +6,7 @@ namespace ModelManagerServer.St4
     /// <summary>
     ///     See ST4 Configurator: <see href="https://github.com/innio-etechnik/Configurator_V2/blob/master/Model/Config/PartPermission.cs" />
     /// </summary>
-    public class St4PartPermission
+    public class PartPermission
     {
         #region Properties DB
 
@@ -20,9 +20,9 @@ namespace ModelManagerServer.St4
 
         #region CTOR
         // Empty CTOR for EF
-        public St4PartPermission() { }
+        public PartPermission() { }
 
-        public St4PartPermission(Part item, Guid rightGroupId, St4Permission permission)
+        public PartPermission(Part item, Guid rightGroupId, St4Permission permission)
         {
             this.Parts_Id = item.Parts_Id;
             this.Parts_Version = item.Parts_Version;
@@ -30,7 +30,7 @@ namespace ModelManagerServer.St4
             this.Permission = permission;
         }
 
-        public St4PartPermission(Guid parts_Id, int parts_Version, Guid rightGroupId, St4Permission permission)
+        public PartPermission(Guid parts_Id, int parts_Version, Guid rightGroupId, St4Permission permission)
         {
             this.Parts_Id = parts_Id;
             this.Parts_Version = parts_Version;

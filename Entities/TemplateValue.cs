@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
 {
@@ -15,6 +14,6 @@ namespace ModelManagerServer.Entities
         public Guid Model_Id { get; set; }
         public int Model_Version { get; set; }
 
-        public Model Model { get; set; }
+        public virtual Model Model { get; set; }
     }
 }

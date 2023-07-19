@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ModelManagerServer.Models.Interfaces;
+﻿using ModelManagerServer.Models.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
@@ -13,7 +12,15 @@ namespace ModelManagerServer.Entities
         public string Name { get; set; }
 
         public virtual Part Part { get; set; }
-        public virtual IList<EnumProperty> Properties { get; set; }
+        public virtual List<EnumProperty> Properties { get; set; }
+
+        public void CreateReferences()
+        {
+            if (this.Id == Guid.Empty)
+                this.Id = Guid.NewGuid();
+
+            this.Properties.ForEach(x => x.CreateReferences());
+        }
 
         public IList<string> Substitute(ISubstitutionProvider provider)
         {

@@ -17,13 +17,25 @@ namespace ModelManagerServer.Entities
         public Guid? Enum_Id { get; set; }
         public int? Enum_Version { get; set; }
 
-        public virtual IList<Model> Models { get; set; }
+        public virtual List<Model> Models { get; set; }
         public virtual Rule? Rule { get; set; }
         public virtual Enum? Enum { get; set; }
-        public virtual IList<PartProperty> PartProperties { get; set; }
-        public virtual IList<PartPermission> PartPermissions { get; set; }
+        public virtual List<PartProperty> PartProperties { get; set; }
+        public virtual List<PartPermission> PartPermissions { get; set; }
 
-        public virtual IList<RefModelPart> RefModelsParts { get; set; }
+        public virtual List<RefModelPart> RefModelsParts { get; set; }
+
+        public void CreateReferences()
+        {
+            if (this.Id == Guid.Empty) 
+                this.Id = Guid.NewGuid();
+
+            if (this.Enum != null) this.Enum.CreateReferences();
+            if (this.Rule != null) this.Rule.CreateReferences();
+
+            for (int i = 0; i < this.PartProperties.Count; i++)
+                this.PartProperties[i].PropertyPosition = i;
+        }
 
         public St4.Part Substitute(ISubstitutionProvider provider)
         {

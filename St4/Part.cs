@@ -34,9 +34,9 @@ namespace ModelManagerServer.St4
         public int? Parts_ParentVersion { get; set; }
 
         [NotMapped] public List<Property> Properties { get; set; }
-        [NotMapped] public List<St4PartPermission> PartPermissions { get; set; }
+        [NotMapped] public List<PartPermission> PartPermissions { get; set; }
 
-        public void AddPartPermissions(List<St4PartPermission> permissions)
+        public void AddPartPermissions(List<PartPermission> permissions)
         {
             if (this.PartPermissions == null || this.PartPermissions.Count == 0)
             {
@@ -109,9 +109,9 @@ namespace ModelManagerServer.St4
             Properties.AddRange(properties.Where(x => x.Parts_Id == Parts_Id && x.Parts_Version == Parts_Version).ToList());
         }
 
-        public void SetPermissions(List<St4PartPermission> permissions)
+        public void SetPermissions(List<PartPermission> permissions)
         {
-            PartPermissions = new List<St4PartPermission>();
+            PartPermissions = new List<PartPermission>();
             PartPermissions.AddRange(permissions.Where(x => x.Parts_Id == Parts_Id && x.Parts_Version == Parts_Version).ToList());
         }
 

@@ -16,5 +16,11 @@ namespace ModelManagerServer.Entities
         public int PropertyPosition { get; set; }
 
         public Part Part { get; set; }
+
+        public void CreateReferences()
+        {
+            if (this.Id == Guid.Empty)
+                this.Id = Guid.NewGuid();
+        }
     }
 }

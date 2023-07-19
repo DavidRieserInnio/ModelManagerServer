@@ -128,6 +128,12 @@ namespace ModelManagerServer.Models
         {
             return !(left == right);
         }
+
+        public void Deconstruct(out bool isSome, out T some)
+        {
+            isSome = this.IsSome;
+            some = this.Value!;
+        }
     }
 
     public static class OptionExtensions
