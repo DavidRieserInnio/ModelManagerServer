@@ -12,7 +12,7 @@ namespace ModelManagerServer.Entities
         public string Name { get; set; }
 
         public virtual Part Part { get; set; }
-        public virtual List<EnumProperty> Properties { get; set; }
+        public virtual List<EnumProperty> Properties { get; set; } = new();
 
         public void CreateReferences()
         {

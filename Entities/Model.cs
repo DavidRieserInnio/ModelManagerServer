@@ -15,11 +15,11 @@ namespace ModelManagerServer.Entities
         public Guid CreatedByUserId { get; set; }
         public DateTime CreationDateTime { get; set; }
 
-        public virtual List<Part> Parts { get; set; } = new List<Part>();
+        public virtual List<Part> Parts { get; set; } = new();
         public virtual Rule? Rule { get; set; } = null;
-        public virtual List<TemplateValue> TemplateValues { get; set; } = new List<TemplateValue>();
+        public virtual List<TemplateValue> TemplateValues { get; set; } = new();
 
-        public virtual List<RefModelPart> RefModelsParts { get; set; }
+        public virtual List<RefModelPart> RefModelsParts { get; set; } = new();
 
         public void CreateReferences(Guid userId)
         {

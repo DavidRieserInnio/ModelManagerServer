@@ -8,7 +8,7 @@ namespace ModelManagerServer.Service
 {
     public static class ConversionService
     {
-        public const uint DEFAULT_SUBSTITUTION_DEPTH = 50;
+        public const uint DEFAULT_MAX_SUBSTITUTION_DEPTH = 50;
 
         public static List<St4.Part> ConvertModel(
             Model model,
@@ -18,6 +18,7 @@ namespace ModelManagerServer.Service
         {
             var tmpvls = model.TemplateValues;
             var res = tmpvls.ToSubstitutionProvider(userDefinedSubstitutions);
+            // TODO: Create Substitution Provider for Part "Article Codes"
 
             if (!res.IsOk)
                 throw res.GetError();
@@ -97,6 +98,7 @@ namespace ModelManagerServer.Service
                         Properties_GroupCollection = null!,
                         Properties_Id = Guid.NewGuid(),
                         Properties_Key = ep.Name,
+                        // TODO: Replace Get() Call
                         Properties_Value = StringService.ReplaceOccurrences(ep.Value, resolver).Get(),
                         Properties_Position = part.Properties.Count + j,
                         Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
@@ -130,6 +132,7 @@ namespace ModelManagerServer.Service
             }
 
             // TODO: Add Model Rule
+            // TODO: Add Group and Circuit
 
             return parts;
 
@@ -140,39 +143,25 @@ namespace ModelManagerServer.Service
         public static Result<ISubstitutionProvider, SubstitutionException> ToSubstitutionProvider(
             this List<TemplateValue> templateValues,
             Dictionary<string, string> additionalSubstitutions,
-            uint max_substitution_depth = DEFAULT_SUBSTITUTION_DEPTH
+            uint max_substitution_depth = DEFAULT_MAX_SUBSTITUTION_DEPTH
         )
         {
             var dict = templateValues.ToDictionary(t => t.Name, t => t.Value);
+            // NOTE: User Input overrides pre-defined Template Values.
+            foreach (var (k, v) in additionalSubstitutions) dict[k] = v;
             // NOTE: DictionarySubstitutionProvider takes a reference to the Dictionary.
             //       This means changing the Dictionary also changes the DictionarySubstitutionProvider.
-            DictionarySubstitutionProvider tv_provider = dict;
-            // NOTE: If any Values are substituted, this also changes the Value that are contained in the Callers Dictionary.
-            DictionarySubstitutionProvider add_provider = additionalSubstitutions;
-            var sub_provider = new SubstitutionProviderCollection(tv_provider, add_provider);
+            DictionarySubstitutionProvider sub_provider = dict;
 
-            // TODO: Safely collapse these two Loops into one
-            foreach (var tv in templateValues)
+            foreach (var tv in dict)
             {
-                var (key, value) = (tv.Name, tv.Value);
+                var (key, value) = (tv.Key, tv.Value);
 
                 var newValue = ResolveValueSubstitutions(value, Lookup, max_substitution_depth);
 
                 if (newValue.IsOk)
                     // Override the Value in Dictionary with the fully substituted one.
                     dict[key] = newValue.Get();
-                else
-                    return newValue.GetError();
-            }
-            foreach (var sub in additionalSubstitutions)
-            {
-                var (key, value) = (sub.Key, sub.Value);
-
-                var newValue = ResolveValueSubstitutions(value, Lookup, max_substitution_depth);
-
-                if (newValue.IsOk)
-                    // Override the Value in Dictionary with the fully substituted one.
-                    additionalSubstitutions[key] = newValue.Get();
                 else
                     return newValue.GetError();
             }
@@ -186,7 +175,7 @@ namespace ModelManagerServer.Service
         private static Result<string, SubstitutionException> ResolveValueSubstitutions(
             string value,
             Func<string, string> lookup,
-            uint max_substitution_depth = DEFAULT_SUBSTITUTION_DEPTH
+            uint max_substitution_depth = DEFAULT_MAX_SUBSTITUTION_DEPTH
         )
         {
             uint i;

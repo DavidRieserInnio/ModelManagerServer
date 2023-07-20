@@ -18,13 +18,13 @@ namespace ModelManagerServer.Entities
         public Guid? Enum_Id { get; set; }
         public int? Enum_Version { get; set; }
 
-        public virtual List<Model> Models { get; set; }
+        public virtual List<Model> Models { get; set; } = new();
         public virtual Rule? Rule { get; set; }
         public virtual Enum? Enum { get; set; }
-        public virtual List<PartProperty> PartProperties { get; set; }
-        public virtual List<PartPermission> PartPermissions { get; set; }
+        public virtual List<PartProperty> PartProperties { get; set; } = new();
+        public virtual List<PartPermission> PartPermissions { get; set; } = new();
 
-        public virtual List<RefModelPart> RefModelsParts { get; set; }
+        public virtual List<RefModelPart> RefModelsParts { get; set; } = new();
 
         public void CreateReferences()
         {
