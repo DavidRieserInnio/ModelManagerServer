@@ -23,6 +23,7 @@ namespace ModelManagerServer.Controllers
         [HttpPost]
         public IActionResult CreateModel(Model model)
         {
+            this._modelRepository.CreateModel(model, Guid.NewGuid());
             // TODO
             return Json(new { });
         }
@@ -35,8 +36,8 @@ namespace ModelManagerServer.Controllers
         )
         {
             Model? model = this._modelRepository.FindModel(modelId, modelVersion);
-            DictionarySubstitutionProvider userValues = kvps.ToDictionary();
-            IList<St4.Part>? parts = model?.Substitute(userValues);
+            Dictionary<string, string> userValues = kvps.ToDictionary();
+            IList<St4.Part>? parts = ConversionService.ConvertModel(model, userValues, 0);
             // TODO
             return Json(new { });
         }
