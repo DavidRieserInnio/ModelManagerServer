@@ -1,4 +1,5 @@
 ﻿using ModelManagerServer.Models.Interfaces;
+using ModelManagerServer.St4.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
@@ -10,7 +11,7 @@ namespace ModelManagerServer.Entities
         public int Version { get; set; }
 
         public string Name { get; set; }
-        public int Type { get; set; }
+        public St4ElementType Type { get; set; }
         public string ElementText { get; set; }
 
         public Guid? Rule_Id { get; set; }

@@ -8,14 +8,14 @@ namespace ModelManagerServer.Service
     {
         private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
         
-        public static Result<string, Exception> ReplaceOccurrences(
+        public static Result<string, SubstitutionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver
         )
         {
             return ReplaceOccurrences(template, resolver, DEFAULT_DELIMITERS);
         }
 
-        public static Result<string, Exception> ReplaceOccurrences(
+        public static Result<string, SubstitutionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver, Delimiters delimiters
         )
         {
@@ -23,7 +23,7 @@ namespace ModelManagerServer.Service
             if (ret.IsError) return ret.GetError();
 
             var expression_positions = ret.Get();
-            if (expression_positions.Count == 0) return template;
+            if (expression_positions.Count == 0) return Result<string, SubstitutionException>.Ok(null!);
 
             var string_length = 0;
             var replacements = new List<string>(expression_positions.Count);
@@ -59,9 +59,9 @@ namespace ModelManagerServer.Service
             return builder.ToString();
         }
 
-        private static Result<List<ExpressionPosition>, InvalidExpressionException> FindExpressionPositions(string template, Delimiters delimiters)
+        private static Result<List<ExpressionPosition>, SubstitutionException> FindExpressionPositions(string template, Delimiters delimiters)
         {
-            int start_pos, end_pos = 0;
+            int start_pos, end_pos = -1;
             List<ExpressionPosition> expression_positions = new();
 
             while (true)
@@ -78,7 +78,7 @@ namespace ModelManagerServer.Service
             return expression_positions;
         }
 
-        public static Result<List<string>, InvalidExpressionException> FindExpressions(string template, Delimiters delimiters)
+        public static Result<List<string>, SubstitutionException> FindExpressions(string template, Delimiters delimiters)
         {
             var positions = FindExpressionPositions(template, delimiters);
             if (!positions.IsOk) return positions.GetError();

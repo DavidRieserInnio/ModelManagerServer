@@ -1,4 +1,5 @@
 ﻿using ModelManagerServer.Models.Interfaces;
+using ModelManagerServer.St4.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
@@ -10,13 +11,13 @@ namespace ModelManagerServer.Entities
         public int Version { get; set; }
 
         public string Name { get; set; }
-        public int State { get; set; }
+        public St4ConfigState State { get; set; }
         public Guid CreatedByUserId { get; set; }
         public DateTime CreationDateTime { get; set; }
 
-        public virtual List<Part> Parts { get; set; }
-        public virtual Rule? Rule { get; set; } 
-        public virtual List<TemplateValue> TemplateValues { get; set; }
+        public virtual List<Part> Parts { get; set; } = new List<Part>();
+        public virtual Rule? Rule { get; set; } = null;
+        public virtual List<TemplateValue> TemplateValues { get; set; } = new List<TemplateValue>();
 
         public virtual List<RefModelPart> RefModelsParts { get; set; }
 
@@ -29,7 +30,7 @@ namespace ModelManagerServer.Entities
             if (this.CreationDateTime == default) 
                 this.CreationDateTime = DateTime.Now;
 
-            foreach (var part in this.Parts) 
+            foreach (var part in this.Parts)
                 part.CreateReferences();
 
             this.RefModelsParts = this.Parts.Select((p, i) => new RefModelPart()

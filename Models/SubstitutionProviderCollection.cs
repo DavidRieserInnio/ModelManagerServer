@@ -26,7 +26,7 @@ namespace ModelManagerServer.Models
         {
             return this._substitutionProviders
                 .Select(s => s.GetSubstitution(original))
-                .First(s => s.IsOk)
+                .FirstOrDefault(s => s.IsOk, new MissingSubstitutionException(original))
                 .Get();
         }
     }

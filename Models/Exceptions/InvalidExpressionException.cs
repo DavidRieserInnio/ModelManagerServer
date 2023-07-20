@@ -3,7 +3,7 @@
 namespace ModelManagerServer.Models.Exceptions
 {
     [Serializable]
-    public class InvalidExpressionException : Exception
+    public class InvalidExpressionException : SubstitutionException
     {
         public InvalidExpressionException(string message) : base(message) { }
 
