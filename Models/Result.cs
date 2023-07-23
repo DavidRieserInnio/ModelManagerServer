@@ -35,6 +35,12 @@ namespace ModelManagerServer.Models
             return new Result<TNew, E>(this.IsOk, this.IsOk ? func((T)this._value)! : this._value);
         }
 
+        public Result<TNew, ENew> Map<TNew, ENew>(Func<T, TNew> func, Func<E, ENew> efunc)
+        {
+    
+            return new Result<TNew, ENew>(this.IsOk, this.IsOk ? func((T)this._value)! : efunc((E) this._value)!);
+        }
+
         public Result<T, ENew> MapError<ENew>(Func<E, ENew> func)
         {
             return new Result<T, ENew>(this.IsOk, this.IsError ? func((E)this._value)! : this._value);
@@ -110,6 +116,11 @@ namespace ModelManagerServer.Models
         public static bool operator !=(Result<T, E> left, Result<T, E> right)
         {
             return !(left == right);
+        }
+
+        public R Match<R>(Func<Result<T, E>, R> succ, Func<Result<T, E>, R> err)
+        {
+            return this.IsOk ? succ(this) : err(this);
         }
     }
 
