@@ -1,0 +1,27 @@
+﻿
+@section Styles {
+    <style>
+        #form_builder {
+            min-height: 50vh;
+        }
+
+        *[draggable="true"] {
+            background-color: palegreen !important;
+        }
+
+        .dragging {
+            background-color: green !important;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-2">
+    <div class="ms-2 row">
+        <div id="form_builder" class="col-9 border rounded border-primary py-3 vstack row-gap-3"></div>
+        <div id="sidebar" class="col-3 vstack row-gap-2"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type='text/javascript' src='~/js/form_builder.js' defer></script>
+}

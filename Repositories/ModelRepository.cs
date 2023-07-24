@@ -1,5 +1,6 @@
 ﻿using ModelManagerServer.Entities;
 using ModelManagerServer.Service;
+using ModelManagerServer.St4.Enums;
 
 namespace ModelManagerServer.Repositories
 {
@@ -37,19 +38,53 @@ namespace ModelManagerServer.Repositories
             return this._ctx.Models.ToList();
         }
 
-        public void CreateModel(Model model, Guid userId)
+        public bool CreateModel(Model model, Guid userId)
         {
             model.CreateReferences(userId);
             this._ctx.Models.Add(model);
-            this._ctx.SaveChanges();
+            try
+            {
+                this._ctx.SaveChanges();
+                return true;
+            } 
+            catch
+            {
+                return false;
+            }
         }
 
-        public void CreateEnum(Entities.Enum e)
+        public List<Model> GetModelHistory(Model model) => this.GetModelHistory(model.Id);
+        public List<Model> GetModelHistory(Guid modelId)
         {
-            this._ctx.Enums.Add(e);
-            this._ctx.AddRange(e.Properties);
+            return this._ctx.Models
+                .Where(m => m.Id == modelId)
+                .OrderBy(m => m.Version)
+                .ToList();
+        }
 
-            this._ctx.SaveChanges();
+        public int GetNextModelVersion(Model model) => this.GetNextModelVersion(model.Id);
+        public int GetNextModelVersion(Guid modelId)
+        {
+            var highestVersion = this.GetModelHistory(modelId)
+                .CheckEmpty()?
+                .Max(m => m.Version) ?? 0;
+            return highestVersion + 1;
+        }
+
+        public bool ChangeModelState(Guid modelId, int modelVersion, St4ConfigState state)
+        {
+            var model = this.FindModel(modelId, modelVersion);
+
+            if (model is not null)
+            {
+                model.State = state;
+                try
+                {
+                    this._ctx.SaveChanges();
+                    return true;
+                } catch { /* Fall trough and return false. */ }
+            }
+            return false;
         }
     }
 }
