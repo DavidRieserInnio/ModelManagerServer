@@ -14,7 +14,7 @@ namespace ModelManagerServer.Entities
         public Guid Enum_Id { get; set; }
         public int Enum_Version { get; set; }
 
-        public virtual Enum Enum { get; set; }
+        public virtual PartEnum Enum { get; set; }
 
         public void CreateReferences()
         {

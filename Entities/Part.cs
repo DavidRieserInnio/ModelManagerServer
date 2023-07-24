@@ -20,7 +20,7 @@ namespace ModelManagerServer.Entities
 
         public virtual List<Model> Models { get; set; } = new();
         public virtual Rule? Rule { get; set; }
-        public virtual Enum? Enum { get; set; }
+        public virtual PartEnum? Enum { get; set; }
         public virtual List<PartProperty> PartProperties { get; set; } = new();
         public virtual List<PartPermission> PartPermissions { get; set; } = new();
 

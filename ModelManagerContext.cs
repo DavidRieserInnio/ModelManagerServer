@@ -10,7 +10,7 @@ namespace ModelManagerServer
         public virtual DbSet<Model> Models { get; set; }
         public virtual DbSet<Part> Parts { get; set; }
         public virtual DbSet<Rule> Rules { get; set; }
-        public virtual DbSet<Entities.Enum> Enums { get; set; }
+        public virtual DbSet<Entities.PartEnum> Enums { get; set; }
         public virtual DbSet<EnumProperty> EnumVariants { get; set; }
         public virtual DbSet<PartPermission> PartPermission { get; set; }
         public virtual DbSet<PartProperty> PartProperty { get; set; }
@@ -28,7 +28,7 @@ namespace ModelManagerServer
             modelBuilder.Entity<Part>().HasKey(p => new { p.Id, p.Version });
             modelBuilder.Entity<PartProperty>().HasKey(p => p.Id);
             modelBuilder.Entity<PartPermission>().HasKey(p => p.Id);
-            modelBuilder.Entity<Entities.Enum>().HasKey(e => new { e.Id, e.Version });
+            modelBuilder.Entity<Entities.PartEnum>().HasKey(e => new { e.Id, e.Version });
             modelBuilder.Entity<EnumProperty>().HasKey(p => p.Id);
             modelBuilder.Entity<TemplateValue>().HasKey(t => t.Id);
             modelBuilder.Entity<Rule>().HasKey(r => r.Id);
@@ -83,7 +83,7 @@ namespace ModelManagerServer
                 .WithOne(p => p.Part)
                 .HasForeignKey<Part>(p => new { p.Enum_Id, p.Enum_Version });
 
-            modelBuilder.Entity<Entities.Enum>()
+            modelBuilder.Entity<Entities.PartEnum>()
                 .HasMany(e => e.Properties)
                 .WithOne(p => p.Enum)
                 .HasForeignKey(p => new { p.Enum_Id, p.Enum_Version });

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ModelManagerServer.Entities
 {
     [Table("Enums", Schema = "modelmanager")]
-    public class Enum : ISubstitutable<IList<string>>
+    public class PartEnum : ISubstitutable<IList<string>>
     {
         public Guid Id { get; set; }
         public int Version { get; set; }
