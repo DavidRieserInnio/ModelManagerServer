@@ -33,6 +33,8 @@ namespace ModelManagerServer.Controllers
             IFormCollection kvps
         )
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             /*
                 $.ajax({
                     method: "POST",
@@ -66,6 +68,8 @@ namespace ModelManagerServer.Controllers
             int modelVersion
         )
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             Model? model = this._modelRepository.FindModel(modelId, modelVersion);
 
             if (model is null) return NotFound();

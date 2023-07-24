@@ -19,6 +19,7 @@ namespace ModelManagerServer.Service
             var tmpvls = model.TemplateValues;
             var res = tmpvls.ToSubstitutionProvider(userDefinedSubstitutions);
             // TODO: Create Substitution Provider for Part "Article Codes"
+            // TODO: Simplify this Method
 
             if (!res.IsOk)
                 throw res.GetError();

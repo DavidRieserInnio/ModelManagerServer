@@ -1,18 +1,20 @@
 ﻿
 @model List<Model>
 
-<table>
+<table class="table">
     @* TODO: Group using Data Table*@
     <tr>
-        <th>Id</th>
-        <th>Version</th>
-        <th>Name</th>
+        <td>Id</td>
+        <td>Version</td>
+        <td>Name</td>
     </tr>
     @foreach (var model in Model)
     {
-        <tr>@(model.Id)</tr>
-        <tr>@(model.Version)</tr>
-        <tr>@(model.Name)</tr>
-        @* TODO: Model Edit, Set State and Instantiate Button *@
+        <tr>
+            <td>@(model.Id)</td>
+            <td>@(model.Version)</td>
+            <td>@(model.Name)</td>
+            @* TODO: Model Edit, Set State and Instantiate Button *@
+        </tr>
     }
 </table>

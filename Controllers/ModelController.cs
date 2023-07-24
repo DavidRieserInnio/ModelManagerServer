@@ -5,7 +5,6 @@ using ModelManagerServer.St4.Enums;
 
 namespace ModelManagerServer.Controllers
 {
-    [ApiController]
     public class ModelController : Controller
     {
         private readonly ModelRepository _modelRepository;
@@ -24,10 +23,14 @@ namespace ModelManagerServer.Controllers
         [HttpPost]
         public IActionResult Create(Model model)
         {
-            model.Version = this._modelRepository.GetNextModelVersion(model);
-            var success = this._modelRepository.CreateModel(model, /* TODO: Get User Id */ Guid.NewGuid());
+            bool success = false;
+            if (ModelState.IsValid)
+            {
+                model.Version = this._modelRepository.GetNextModelVersion(model);
+                success = this._modelRepository.CreateModel(model, /* TODO: Get User Id */ Guid.NewGuid());
+            }
 
-            return Json(new { success, modelId = model.Id });
+            return Json(new { success });
         }
 
         [HttpGet]
@@ -41,7 +44,8 @@ namespace ModelManagerServer.Controllers
 
         public IActionResult SetModelState(Guid modelId, int modelVersion, St4ConfigState state)
         {
-            var success = this._modelRepository.ChangeModelState(modelId, modelVersion, state);
+            var success = ModelState.IsValid && 
+                          this._modelRepository.ChangeModelState(modelId, modelVersion, state);
             return Json(new { success });
         }
     }

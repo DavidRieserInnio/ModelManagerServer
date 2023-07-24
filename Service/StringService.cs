@@ -59,7 +59,9 @@ namespace ModelManagerServer.Service
             return builder.ToString();
         }
 
-        private static Result<List<ExpressionPosition>, SubstitutionException> FindExpressionPositions(string template, Delimiters delimiters)
+        private static Result<List<ExpressionPosition>, SubstitutionException> FindExpressionPositions(
+            string template, Delimiters delimiters
+        )
         {
             int start_pos, end_pos = -1;
             List<ExpressionPosition> expression_positions = new();
@@ -78,11 +80,15 @@ namespace ModelManagerServer.Service
             return expression_positions;
         }
 
-        public static Result<List<string>, SubstitutionException> FindExpressions(string template, Delimiters delimiters)
+        public static Result<List<string>, SubstitutionException> FindExpressions(
+            string template, Delimiters delimiters
+        )
         {
             var positions = FindExpressionPositions(template, delimiters);
-            if (!positions.IsOk) return positions.GetError();
-            return positions.Get().Select(e => template.AsSpan(e.ExpressionStart, e.Length).ToString()).ToList();
+            return positions.Map(
+                pos => pos.Select(expr => template.Substring(expr.ExpressionStart, expr.Length)).ToList(), 
+                exc => exc
+           );
         }
     }
 }
