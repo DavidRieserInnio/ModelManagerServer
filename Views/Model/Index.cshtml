@@ -1,0 +1,18 @@
+﻿
+@model List<Model>
+
+<table>
+    @* TODO: Group using Data Table*@
+    <tr>
+        <th>Id</th>
+        <th>Version</th>
+        <th>Name</th>
+    </tr>
+    @foreach (var model in Model)
+    {
+        <tr>@(model.Id)</tr>
+        <tr>@(model.Version)</tr>
+        <tr>@(model.Name)</tr>
+        @* TODO: Model Edit, Set State and Instantiate Button *@
+    }
+</table>
