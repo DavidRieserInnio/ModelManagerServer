@@ -33,15 +33,6 @@ namespace ModelManagerServer.Controllers
             return Json(new { success });
         }
 
-        [HttpGet]
-        public List<string> GetModelStates()
-        {
-            return Enum.GetValues(typeof(St4ConfigState))
-                .Cast<St4ConfigState>()
-                .Select(v => v.ToString())
-                .ToList();
-        }
-
         public IActionResult SetModelState(Guid modelId, int modelVersion, St4ConfigState state)
         {
             var success = ModelState.IsValid && 

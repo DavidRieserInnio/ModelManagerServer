@@ -8,14 +8,14 @@ namespace ModelManagerServer.Service
     {
         private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
         
-        public static Result<string, SubstitutionException> ReplaceOccurrences(
+        public static Result<string?, SubstitutionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver
         )
         {
             return ReplaceOccurrences(template, resolver, DEFAULT_DELIMITERS);
         }
 
-        public static Result<string, SubstitutionException> ReplaceOccurrences(
+        public static Result<string?, SubstitutionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver, Delimiters delimiters
         )
         {
@@ -23,7 +23,7 @@ namespace ModelManagerServer.Service
             if (ret.IsError) return ret.GetError();
 
             var expression_positions = ret.Get();
-            if (expression_positions.Count == 0) return Result<string, SubstitutionException>.Ok(null!);
+            if (expression_positions.Count == 0) return (string?) null;
 
             var string_length = 0;
             var replacements = new List<string>(expression_positions.Count);
@@ -72,7 +72,7 @@ namespace ModelManagerServer.Service
                 if (start_pos == -1) break;
 
                 end_pos = template.IndexOf(delimiters.EndChar, start_pos + 1);
-                if (end_pos == -1) return (InvalidExpressionException) new OpenExpressionException(template, start_pos);
+                if (end_pos == -1) return new OpenExpressionException(template, start_pos);
 
                 expression_positions.Add((start_pos, end_pos));
             }

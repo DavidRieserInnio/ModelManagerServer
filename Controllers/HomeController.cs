@@ -2,6 +2,7 @@
 using ModelManagerServer.Entities;
 using ModelManagerServer.Repositories;
 using ModelManagerServer.Service;
+using ModelManagerServer.St4.Enums;
 
 namespace ModelManagerServer.Controllers
 {
@@ -85,7 +86,8 @@ namespace ModelManagerServer.Controllers
             return new List<St4.RightGroup> { new St4.RightGroup
                 {
                     RightGroups_Id = Guid.NewGuid(),
-                    RightGroups_Name = "Test"
+                    RightGroups_Name = "Test",
+                    RightGroups_Description = "Test",
                 } 
             };
         }
@@ -99,6 +101,12 @@ namespace ModelManagerServer.Controllers
                     Milestones_Name = "Test",
                 }
             };
+        }
+
+        [HttpGet]
+        public IEnumerable<string> GetModelStates()
+        {
+            return Enum.GetNames<St4ConfigState>();
         }
     }
 }
