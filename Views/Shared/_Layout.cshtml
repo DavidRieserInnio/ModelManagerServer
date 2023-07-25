@@ -4,10 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ModelManagerServer</title>
+
+    @*Eigene CSS*@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ModelManagerServer.styles.css" asp-append-version="true" />
+    @*Bootstrap*@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    @*Font Awesome*@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @*Data-tables*@
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.25/af-2.3.7/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/b-print-1.7.1/cr-1.5.4/date-1.1.0/fc-3.3.3/fh-3.1.9/kt-2.6.2/r-2.2.8/rg-1.1.3/rr-1.2.8/sc-2.0.4/sb-1.1.0/sp-1.3.0/sl-1.3.3/datatables.min.css" />
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -43,8 +50,29 @@
             &copy; 2023 - ModelManagerServer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    @*Bootstrap*@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @*FontAwesome Kit*@
+    <script src="https://kit.fontawesome.com/ebedd88ae8.js" crossorigin="anonymous"></script>
+    @*Datatables*@
+    <script src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.25/af-2.3.7/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/b-print-1.7.1/cr-1.5.4/date-1.1.0/fc-3.3.3/fh-3.1.9/kt-2.6.2/r-2.2.8/rg-1.1.3/rr-1.2.8/sc-2.0.4/sb-1.1.0/sp-1.3.0/sl-1.3.3/datatables.min.js"
+            integrity="sha512-3D1zimcCriTrYSAuqRIXkvBQja+SHmQKVVHWXEOMB+ZpsM5ivaKyiqss2Jd+4SV4+L+T3i8D5i+T+W2T6wVUkA=="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.mark.js@2.1.0/dist/datatables.mark.min.js"
+            asp-fallback-src="~/lib/datatables.mark.js/dist/datatables.mark.min.js"
+            integrity="sha512-tbdFBrkorPbQLdKmzL60AQOQs7cSR5aQ2Ixtkg2FAePD8JiyaUorITijmi5gq/Emv00vE/uRBDYFL6mBh3kk/Q=="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.datatables.net/plug-ins/1.10.25/features/scrollResize/dataTables.scrollResize.min.js"
+            integrity="sha512-WJWZg0STNHbDDlyNuHfmQcrdvjO6x9xg2W2uvkn4Xajcppo79Nn0YiBHwF0EKo+R9oPkHN0FbMSu6uq7X7L3ww=="
+            crossorigin="anonymous">
+    </script>
+
+    @*Eigene JS*@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

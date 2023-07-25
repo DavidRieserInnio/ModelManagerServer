@@ -23,16 +23,15 @@ namespace ModelManagerServer.Repositories
         public List<Model>? FindModelWithVersions(Guid id)
         {
             return this._ctx.Models.Where(m => m.Id == id)
-                .OrderBy(m => m.Version)
+                .OrderByDescending(m => m.Version)
                 .CheckEmpty()?
                 .ToList();
         }
 
-        public List<List<Model>> FindAllModelsGroupedByVersion()
+        public IEnumerable<IGrouping<Guid, Model>> FindAllModelsGroupedByVersion()
         {
-            return this._ctx.Models.GroupBy(m => m.Id)
-                .Select(g => g.OrderBy(m => m.Version).ToList())
-                .ToList();
+            return this._ctx.Models
+                .GroupBy(m => m.Id);
         }
 
         public List<Model> FindAllModels()
@@ -61,7 +60,7 @@ namespace ModelManagerServer.Repositories
         {
             return this._ctx.Models
                 .Where(m => m.Id == modelId)
-                .OrderBy(m => m.Version)
+                .OrderByDescending(m => m.Version)
                 .ToList();
         }
 

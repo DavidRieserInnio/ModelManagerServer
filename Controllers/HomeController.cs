@@ -106,7 +106,7 @@ namespace ModelManagerServer.Controllers
         [HttpGet]
         public IEnumerable<string> GetModelStates()
         {
-            return Enum.GetNames<St4ConfigState>();
+            return Enum.GetNames<St4PartState>();
         }
     }
 }

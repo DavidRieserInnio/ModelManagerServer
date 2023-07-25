@@ -1,20 +1,120 @@
-﻿
-@model List<Model>
+﻿@using ModelManagerServer.St4.Enums;
 
-<table class="table">
-    @* TODO: Group using Data Table*@
-    <tr>
-        <td>Id</td>
-        <td>Version</td>
-        <td>Name</td>
-    </tr>
-    @foreach (var model in Model)
-    {
-        <tr>
-            <td>@(model.Id)</td>
-            <td>@(model.Version)</td>
-            <td>@(model.Name)</td>
-            @* TODO: Model Edit, Set State and Instantiate Button *@
-        </tr>
+@model IEnumerable<IGrouping<Guid, Model?>>?
+
+@if (Model is not null)
+{
+    <table class="table" id="ModelTable">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Version</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var grouping in Model)
+            {
+                var version_count = grouping.Count();
+                @foreach ((Model? model, int idx) in grouping.OrderByDescending(m => m?.Version).Select((e, i) => (e, i)))
+                {
+                    if (model is not null)
+                    {
+                        var classes = idx > 0 ? "invisible" : version_count > 1 ? "border-0 " : "";
+                        <tr>
+                            <td class=@(classes)>@(model.Id)</td>
+                            <td>@(model.Version)</td>
+                            <td>@(model.Name)</td>
+                            <td>@(Enum.IsDefined<St4PartState>(model.State) ? model.State : "INVALID")</td>
+                            @* TODO: Add Links *@
+                            <td><i class="fa-solid fa-pen-to-square"></i></td>
+                            <td><a type="button" onclick="open_set_state_modal('@(model.Id)', @(model.Version))"><i class="fa-solid fa-wrench"></i></a></td>
+                            <td><i class="fa-solid fa-paper-plane"></i></td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Set Model State Modal -->
+<div class="modal fade" id="modelStateModal" tabindex="-1" aria-labelledby="modelStateModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelStateModal">Set Model State</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modelStateModalBody">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script defer>
+    window.addEventListener("DOMContentLoaded", function () {
+        $('#ModelTable').DataTable({
+            columnDefs: [{ targets: 0 }],
+            ordering: false
+        });
+    }, false);
+
+    let modelData = undefined;
+    function open_set_state_modal(modelId, modelVersion) {
+        let not_initialized = modelData == undefined;
+        modelData = { modelId, modelVersion };
+
+        let modal = new bootstrap.Modal("#modelStateModal", {});
+
+        if (not_initialized) {
+            let body = $("#modelStateModalBody");
+            body.html("<div class='spinner-border spinner-border-sm text-success' role='status'><span class='sr-only'>Loading...</span></div>");
+
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetModelStates",
+                success: function (states) {
+                    body.empty();
+
+                    let container = $("<ul></ul>", { class: "list-group" });
+                    for (var state of states) {
+                        container.append($("<li></li>", { 
+                            class: "list-group-item",
+                            text: state,
+                            value: state,
+                            type: "button"
+                        })
+                        .on("click", e => set_model_state($(e.target).text())));
+                    }
+                    body.append(container);
+
+                    modal.show();
+                }
+            });
+        } else {
+            modal.show();
+        }
     }
-</table>
+
+    function set_model_state(state) {
+        if (modelData == undefined) return;
+
+        $.ajax({
+            url: "/Model/SetModelState",
+            method: "POST",
+            data: {
+                modelId: modelData.modelId, 
+                modelVersion: modelData.modelVersion,
+                state
+            },
+        }).then(console.log);
+    }
+</script>
+

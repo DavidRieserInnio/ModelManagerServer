@@ -16,9 +16,13 @@ namespace ModelManagerServer.Controllers
             this._modelRepository = modelRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(Guid? modelId = null)
         {
-            var models = this._modelRepository.FindAllModels();
+            IEnumerable<IGrouping<Guid, Model?>>? models;
+            if (modelId is not null)
+                models = this._modelRepository.FindModelWithVersions(modelId.Value)?.GroupBy(m => m.Id);
+            else
+                models = this._modelRepository.FindAllModelsGroupedByVersion();
             return View(models);
         }
 
