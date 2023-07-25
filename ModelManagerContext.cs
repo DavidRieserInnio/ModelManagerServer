@@ -79,7 +79,7 @@ namespace ModelManagerServer
                 .HasForeignKey(p => p.Rule_Id);
 
             modelBuilder.Entity<Part>()
-                .HasOne(p => p.Enum)
+                .HasOne(p => p.PartEnum)
                 .WithOne(p => p.Part)
                 .HasForeignKey<Part>(p => new { p.Enum_Id, p.Enum_Version });
 

@@ -1,4 +1,6 @@
-﻿using ModelManagerServer.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ModelManagerServer.Entities;
+using ModelManagerServer.Models;
 using ModelManagerServer.Service;
 using ModelManagerServer.St4.Enums;
 
@@ -38,18 +40,19 @@ namespace ModelManagerServer.Repositories
             return this._ctx.Models.ToList();
         }
 
-        public bool CreateModel(Model model, Guid userId)
+        public Option<DbUpdateException> CreateModel(Model model, Guid userId)
         {
+            // TODO: Check neccessary Things are set!
             model.CreateReferences(userId);
             this._ctx.Models.Add(model);
             try
             {
                 this._ctx.SaveChanges();
-                return true;
+                return Option<DbUpdateException>.None;
             } 
-            catch
+            catch (DbUpdateException exp)
             {
-                return false;
+                return exp;
             }
         }
 
@@ -71,7 +74,7 @@ namespace ModelManagerServer.Repositories
             return highestVersion + 1;
         }
 
-        public bool ChangeModelState(Guid modelId, int modelVersion, St4ConfigState state)
+        public bool ChangeModelState(Guid modelId, int modelVersion, St4PartState state)
         {
             var model = this.FindModel(modelId, modelVersion);
 

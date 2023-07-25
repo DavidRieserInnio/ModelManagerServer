@@ -9,6 +9,8 @@ namespace ModelManagerServer.Controllers
     {
         private readonly ModelRepository _modelRepository;
 
+        private static Guid USER_ID { get => Guid.Parse("90530C69-9F4D-4F4B-9ED7-4B31092E605D"); }
+
         public ModelController(ModelRepository modelRepository)
         {
             this._modelRepository = modelRepository;
@@ -23,17 +25,15 @@ namespace ModelManagerServer.Controllers
         [HttpPost]
         public IActionResult Create(Model model)
         {
-            bool success = false;
-            if (ModelState.IsValid)
-            {
-                model.Version = this._modelRepository.GetNextModelVersion(model);
-                success = this._modelRepository.CreateModel(model, /* TODO: Get User Id */ Guid.NewGuid());
-            }
+            model.Version = this._modelRepository.GetNextModelVersion(model);
+            var res = this._modelRepository.CreateModel(model, USER_ID);
 
-            return Json(new { success });
+            if (res.IsSome)
+                return Json(new { success = false, error = res.Get() });
+            return Json(new { success = true });
         }
 
-        public IActionResult SetModelState(Guid modelId, int modelVersion, St4ConfigState state)
+        public IActionResult SetModelState(Guid modelId, int modelVersion, St4PartState state)
         {
             var success = ModelState.IsValid && 
                           this._modelRepository.ChangeModelState(modelId, modelVersion, state);

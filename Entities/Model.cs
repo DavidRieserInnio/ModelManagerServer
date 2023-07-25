@@ -11,7 +11,7 @@ namespace ModelManagerServer.Entities
         public int Version { get; set; }
 
         public string Name { get; set; }
-        public St4ConfigState State { get; set; }
+        public St4PartState State { get; set; }
         public Guid CreatedByUserId { get; set; }
         public DateTime CreationDateTime { get; set; }
 

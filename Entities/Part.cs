@@ -20,7 +20,7 @@ namespace ModelManagerServer.Entities
 
         public virtual List<Model> Models { get; set; } = new();
         public virtual Rule? Rule { get; set; }
-        public virtual PartEnum? Enum { get; set; }
+        public virtual PartEnum? PartEnum { get; set; }
         public virtual List<PartProperty> PartProperties { get; set; } = new();
         public virtual List<PartPermission> PartPermissions { get; set; } = new();
 
@@ -31,7 +31,7 @@ namespace ModelManagerServer.Entities
             if (this.Id == Guid.Empty) 
                 this.Id = Guid.NewGuid();
 
-            this.Enum?.CreateReferences();
+            this.PartEnum?.CreateReferences();
             this.Rule?.CreateReferences();
             this.PartProperties.ForEach(p => p.CreateReferences());
             this.PartPermissions.ForEach(p => p.CreateReferences());

@@ -88,9 +88,9 @@ namespace ModelManagerServer.Service
                         Properties_UseForImport = false,
                     });
                 }
-                if (p.Enum is not null)
+                if (p.PartEnum is not null)
                 {
-                    part.Properties.AddRange(p.Enum.Properties.Select((ep, j) => new Property()
+                    part.Properties.AddRange(p.PartEnum.Properties.Select((ep, j) => new Property()
                     {
                         Properties_ComboBoxItemGroup = ep.EnumVariantId,
                         Localization_TextId = null,
