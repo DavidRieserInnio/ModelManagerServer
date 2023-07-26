@@ -15,14 +15,31 @@ namespace ModelManagerServer.Repositories
             this._ctx = ctx;
         }
 
+        private IQueryable<Model> ModelsWithSubEntities()
+        {
+            return this._ctx.Models
+                .Include(m => m.Parts)
+                    .ThenInclude(p => p.PartProperties)
+                .Include(m => m.Parts)
+                    .ThenInclude(p => p.PartEnum)
+                        .ThenInclude(e => e.Properties)
+                .Include(m => m.Parts)
+                    .ThenInclude(p => p.PartPermissions)
+                .Include(m => m.Parts)
+                    .ThenInclude(p => p.Rule)
+                .Include(m => m.Rule)
+                .Include(m => m.TemplateValues);
+        }
+
         public Model? FindModel(Guid id, int version)
         {
             if (id == Guid.Empty || version < 0) return null;
-            return this._ctx.Models
-                .Include(m => m.Parts)
-                .Include(m => m.Rule)
-                .Include(m => m.TemplateValues)
+            
+            var model = this.ModelsWithSubEntities()
                 .FirstOrDefault(m => m.Id == id && m.Version == version);
+            model?.Parts.Sort((p1, p2) => p1.Version - p2.Version);
+
+            return model;
         }
 
         public List<Model>? FindModelWithVersionsOrdered(Guid id)
