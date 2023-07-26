@@ -1,5 +1,6 @@
 ﻿using ModelManagerServer.Models.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ModelManagerServer.Entities
 {
@@ -11,6 +12,7 @@ namespace ModelManagerServer.Entities
 
         public string Name { get; set; }
 
+        [JsonIgnore]
         public virtual Part Part { get; set; }
         public virtual List<EnumProperty> Properties { get; set; } = new();
 

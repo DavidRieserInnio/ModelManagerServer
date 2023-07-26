@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ModelManagerServer.Entities
 {
@@ -11,9 +12,12 @@ namespace ModelManagerServer.Entities
         public bool ApplyToParts { get; set; }
         public string Value { get; set; }
 
+        [JsonIgnore]
         public Guid Model_Id { get; set; }
+        [JsonIgnore]
         public int Model_Version { get; set; }
 
+        [JsonIgnore]
         public virtual Model Model { get; set; }
     }
 }

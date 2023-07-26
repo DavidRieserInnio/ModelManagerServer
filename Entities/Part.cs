@@ -1,6 +1,7 @@
 ﻿using ModelManagerServer.Models.Interfaces;
 using ModelManagerServer.St4.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ModelManagerServer.Entities
 {
@@ -18,12 +19,14 @@ namespace ModelManagerServer.Entities
         public Guid? Enum_Id { get; set; }
         public int? Enum_Version { get; set; }
 
-        public virtual List<Model> Models { get; set; } = new();
         public virtual Rule? Rule { get; set; }
         public virtual PartEnum? PartEnum { get; set; }
         public virtual List<PartProperty> PartProperties { get; set; } = new();
         public virtual List<PartPermission> PartPermissions { get; set; } = new();
 
+        [JsonIgnore]
+        public virtual List<Model> Models { get; set; } = new();
+        [JsonIgnore]
         public virtual List<RefModelPart> RefModelsParts { get; set; } = new();
 
         public void CreateReferences()

@@ -1,6 +1,9 @@
 ﻿@using ModelManagerServer.St4.Enums;
+@using ModelManagerServer.Service;
 
 @model IEnumerable<IGrouping<Guid, Model?>>?
+
+<a class="btn btn-success" asp-controller="Model" asp-action="CreateModel">Create Model</a>
 
 @if (Model is not null)
 {
@@ -31,9 +34,28 @@
                             <td>@(model.Name)</td>
                             <td>@(Enum.IsDefined<St4PartState>(model.State) ? model.State : "INVALID")</td>
                             @* TODO: Add Links *@
-                            <td><i class="fa-solid fa-pen-to-square"></i></td>
-                            <td><a type="button" onclick="open_set_state_modal('@(model.Id)', @(model.Version))"><i class="fa-solid fa-wrench"></i></a></td>
-                            <td><i class="fa-solid fa-paper-plane"></i></td>
+                            <td>
+                                <a asp-action="EditModel" 
+                                    asp-controller="Model" 
+                                    asp-route-modelId="@(model.Id)" 
+                                    asp-route-modelVersion=@(model.Version)
+                                >
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a type="button" onclick="open_set_state_modal('@(model.Id)', @(model.Version))">
+                                    <i class="fa-solid fa-wrench"></i>
+                                </a>
+                            </td>
+                            @if (model.State.CanConvertModel())
+                            {
+                                <td><i class="fa-solid fa-paper-plane"></i></td>
+                            } 
+                            else 
+                            {
+                                <td><i class="fa-solid fa-x"></i></td>
+                            }
                         </tr>
                     }
                 }

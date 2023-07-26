@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using ModelManagerServer.St4.Enums;
+using System.Linq;
 
 namespace ModelManagerServer.Service
 {
@@ -50,5 +51,7 @@ namespace ModelManagerServer.Service
         {
             return values.Any() ? values : null;
         }
+
+        public static bool CanConvertModel(this St4PartState state) => state == St4PartState.Working;
     }
 }

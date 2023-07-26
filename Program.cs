@@ -6,7 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddMvc();
+builder.Services.AddMvc()
+    .AddJsonOptions(options => {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
 
 var connectionString = builder.Configuration.GetConnectionString("DocuSQL");
 builder.Services.AddDbContext<ModelManagerContext>(options => options.UseSqlServer(connectionString));

@@ -17,10 +17,11 @@ namespace ModelManagerServer.Repositories
 
         public Model? FindModel(Guid id, int version)
         {
+            if (id == Guid.Empty || version < 0) return null;
             return this._ctx.Models.FirstOrDefault(m => m.Id == id && m.Version == version);
         }
 
-        public List<Model>? FindModelWithVersions(Guid id)
+        public List<Model>? FindModelWithVersionsOrdered(Guid id)
         {
             return this._ctx.Models.Where(m => m.Id == id)
                 .OrderByDescending(m => m.Version)
@@ -39,7 +40,7 @@ namespace ModelManagerServer.Repositories
             return this._ctx.Models.ToList();
         }
 
-        public Option<DbUpdateException> CreateModel(Model model, Guid userId)
+        public Option<string> CreateModel(Model model, Guid userId)
         {
             // TODO: Check neccessary Things are set!
             model.CreateReferences(userId);
@@ -47,11 +48,11 @@ namespace ModelManagerServer.Repositories
             try
             {
                 this._ctx.SaveChanges();
-                return Option<DbUpdateException>.None;
+                return Option<string>.None;
             } 
-            catch (DbUpdateException exp)
+            catch (Exception exp)
             {
-                return exp;
+                return exp.ToString();
             }
         }
 
@@ -67,9 +68,10 @@ namespace ModelManagerServer.Repositories
         public int GetNextModelVersion(Model model) => this.GetNextModelVersion(model.Id);
         public int GetNextModelVersion(Guid modelId)
         {
+            if (modelId == Guid.Empty) return 1;
             var highestVersion = this.GetModelHistory(modelId)
-                .CheckEmpty()?
-                .Max(m => m.Version) ?? 0;
+                    .CheckEmpty()?
+                    .Max(m => m.Version) ?? 0;
             return highestVersion + 1;
         }
 

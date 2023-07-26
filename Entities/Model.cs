@@ -1,5 +1,6 @@
 ﻿using ModelManagerServer.Models.Interfaces;
 using ModelManagerServer.St4.Enums;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
@@ -19,6 +20,7 @@ namespace ModelManagerServer.Entities
         public virtual Rule? Rule { get; set; } = null;
         public virtual List<TemplateValue> TemplateValues { get; set; } = new();
 
+        [JsonIgnore]
         public virtual List<RefModelPart> RefModelsParts { get; set; } = new();
 
         public void CreateReferences(Guid userId)
