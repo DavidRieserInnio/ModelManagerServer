@@ -1,6 +1,7 @@
 ﻿using ModelManagerServer.Models.Interfaces;
 using ModelManagerServer.St4.Enums;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModelManagerServer.Entities
@@ -12,6 +13,7 @@ namespace ModelManagerServer.Entities
         public int Version { get; set; }
 
         public string Name { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public St4PartState State { get; set; }
         public Guid CreatedByUserId { get; set; }
         public DateTime CreationDateTime { get; set; }
@@ -25,12 +27,11 @@ namespace ModelManagerServer.Entities
 
         public void CreateReferences(Guid userId)
         {
-            if (this.Id == Guid.Empty) 
-                this.Id = Guid.NewGuid();
-            if (this.CreatedByUserId == Guid.Empty) 
-                this.CreatedByUserId = userId;
-            if (this.CreationDateTime == default) 
-                this.CreationDateTime = DateTime.Now;
+            if (this.Id == Guid.Empty) this.Id = Guid.NewGuid();
+            else this.Version++;
+
+            this.CreatedByUserId = userId;
+            this.CreationDateTime = DateTime.Now;
 
             foreach (var part in this.Parts)
                 part.CreateReferences();

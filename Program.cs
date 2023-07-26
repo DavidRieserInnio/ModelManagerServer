@@ -1,19 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using ModelManagerServer;
 using ModelManagerServer.Repositories;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddMvc()
-    .AddJsonOptions(options => {
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
     });
 
 var connectionString = builder.Configuration.GetConnectionString("DocuSQL");
-builder.Services.AddDbContext<ModelManagerContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ModelManagerContext>(options => {
+    options.UseSqlServer(connectionString);
+});
 
 builder.Services.AddScoped<ModelRepository>();
 

@@ -13,9 +13,9 @@ namespace ModelManagerServer.Entities
         public string Value { get; set; }
 
         [JsonIgnore]
-        public Guid Model_Id { get; set; }
+        public virtual Guid Model_Id { get; set; }
         [JsonIgnore]
-        public int Model_Version { get; set; }
+        public virtual int Model_Version { get; set; }
 
         [JsonIgnore]
         public virtual Model Model { get; set; }

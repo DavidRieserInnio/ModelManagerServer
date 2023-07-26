@@ -12,9 +12,9 @@ namespace ModelManagerServer.Entities
         public string Content { get; set; }
 
         [JsonIgnore]
-        public Guid? Model_Id { get; set; }
+        public virtual Guid? Model_Id { get; set; }
         [JsonIgnore]
-        public int? Model_Version { get; set; }
+        public virtual int? Model_Version { get; set; }
 
         [JsonIgnore]
         public virtual List<Part> Parts { get; set; } = new();

@@ -9,9 +9,9 @@ namespace ModelManagerServer.Entities
         public Guid Model_Id { get; set; }
         public int Model_Version { get; set; }
 
-        public Guid Part_Id { get; set; }
-        public int Part_Version { get; set; }
-        public int Part_Position { get; set; }
+        public virtual Guid Part_Id { get; set; }
+        public virtual int Part_Version { get; set; }
+        public virtual int Part_Position { get; set; }
 
         public virtual Model Model { get; set; }
         public virtual Part Part { get; set; }

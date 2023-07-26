@@ -50,7 +50,6 @@ namespace ModelManagerServer.Controllers
         [HttpPost]
         public IActionResult Create(Model model)
         {
-            model.Version = this._modelRepository.GetNextModelVersion(model);
             var res = this._modelRepository.CreateModel(model, USER_ID);
 
             if (res.IsNone)

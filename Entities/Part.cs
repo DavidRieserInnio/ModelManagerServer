@@ -1,7 +1,8 @@
 ﻿using ModelManagerServer.Models.Interfaces;
 using ModelManagerServer.St4.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace ModelManagerServer.Entities
 {
@@ -12,6 +13,7 @@ namespace ModelManagerServer.Entities
         public int Version { get; set; }
 
         public string Name { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public St4ElementType Type { get; set; }
         public string ElementText { get; set; }
 

@@ -14,12 +14,12 @@ namespace ModelManagerServer.Entities
         public Guid RightGroupId { get; set; }
 
         [JsonIgnore]
-        public Guid Part_Id { get; set; }
+        public virtual Guid Part_Id { get; set; }
         [JsonIgnore]
-        public int Part_Version { get; set; }
+        public virtual int Part_Version { get; set; }
 
         [JsonIgnore]
-        public Part Part { get; set; }
+        public virtual Part Part { get; set; }
 
         public void CreateReferences()
         {

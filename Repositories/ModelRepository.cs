@@ -18,7 +18,11 @@ namespace ModelManagerServer.Repositories
         public Model? FindModel(Guid id, int version)
         {
             if (id == Guid.Empty || version < 0) return null;
-            return this._ctx.Models.FirstOrDefault(m => m.Id == id && m.Version == version);
+            return this._ctx.Models
+                .Include(m => m.Parts)
+                .Include(m => m.Rule)
+                .Include(m => m.TemplateValues)
+                .FirstOrDefault(m => m.Id == id && m.Version == version);
         }
 
         public List<Model>? FindModelWithVersionsOrdered(Guid id)
@@ -44,9 +48,9 @@ namespace ModelManagerServer.Repositories
         {
             // TODO: Check neccessary Things are set!
             model.CreateReferences(userId);
-            this._ctx.Models.Add(model);
             try
             {
+                this._ctx.Models.Add(model);
                 this._ctx.SaveChanges();
                 return Option<string>.None;
             } 
