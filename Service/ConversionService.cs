@@ -36,7 +36,31 @@ namespace ModelManagerServer.Service
                     .Select(prop => ($"{p.Name}[{prop.Name}]", prop.Value)))
                 .ToDictionary()
             );
-            var provider = new SubstitutionProviderCollection(res.Get(), partPropertySubProvider);
+            var partEnumSubProvider = new DictionarySubstitutionProvider(
+                model.Parts.Where(p => p.PartEnum is not null)
+                    .SelectMany(p => {
+                        var enm = p.PartEnum;
+                        var variants = enm!.Properties.GroupBy(enm => enm.EnumVariantId);
+
+                        var subs = new List<(string, string)>(enm.Properties.Count);
+
+                        foreach (var variant in variants) {
+                            var elementText = variant.FirstOrDefault(prop => prop.Name == St4.Common.PropertyElementText)?.Value;
+                            if (elementText == null) continue;
+
+                            var articleCode = variant.FirstOrDefault(prop => prop.Name == St4.Common.PropertyArticleCode)?.Value;
+                            if (articleCode != null) subs.Add(($"{p.Name}.{elementText}", articleCode));
+
+                            foreach (var prop in variant) {
+                                subs.Add(($"{p.Name}.{elementText}[{prop.Name}]", prop.Value));
+                            }
+                        }
+
+                        return subs;
+                    })
+                    .ToDictionary()
+            );
+            var provider = new SubstitutionProviderCollection(res.Get(), partPropertySubProvider, partEnumSubProvider);
             // TODO: Simplify this Method
 
             if (!res.IsOk)
