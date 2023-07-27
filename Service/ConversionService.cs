@@ -10,6 +10,7 @@ namespace ModelManagerServer.Service
     public static class ConversionService
     {
         public const uint DEFAULT_MAX_SUBSTITUTION_DEPTH = 50;
+        private static Guid USER_ID { get => Guid.Parse("90530C69-9F4D-4F4B-9ED7-4B31092E605D"); }
 
         public static List<string> FindExpressions(Model model)
         {
@@ -24,7 +25,7 @@ namespace ModelManagerServer.Service
             .ToList();
         }
 
-        public static List<St4.Part> ConvertModel(
+        public static ConvertedModel ConvertModel(
             Model model,
             Dictionary<string, string> userDefinedSubstitutions,
             int part_start_position
@@ -52,7 +53,7 @@ namespace ModelManagerServer.Service
                         var subs = new List<(string, string)>(enm.Properties.Count);
 
                         foreach (var variant in variants) {
-                            var elementText = variant.FirstOrDefault(prop => prop.Name == St4.Common.PropertyElementText)?.Value;
+                            var elementText = variant.FirstOrDefault(prop => prop.Name == St4.Common.PropertyComboItemText)?.Value;
                             if (elementText == null) continue;
 
                             var articleCode = variant.FirstOrDefault(prop => prop.Name == St4.Common.PropertyArticleCode)?.Value;
@@ -94,101 +95,92 @@ namespace ModelManagerServer.Service
                     Parts_Position = part_start_position + i,
                     Parts_State = St4.Enums.St4PartState.Working,
                     Parts_Type = p.Type,
-                    Properties = p.PartProperties.Select((prop, j) =>
-                    {
-                        return new St4.Property()
-                        {
-                            Parts_Id = partId,
-                            Parts_Version = partVersion,
-                            Localization_TextId = null,
-                            Properties_Id = Guid.NewGuid(),
-                            Properties_Key = prop.Name,
-                            // TODO: Replace Get() Call
-                            Properties_Value = ResolveValueSubstitutions(prop.Value, resolver).Get(),
-                            Properties_ComboBoxItemGroup = null,
-                            Properties_GroupCollection = null,
-                            Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
-                            Properties_TranslationTexts = null!,
-                            Properties_UseForImport = false,
-                            Properties_Position = j,
-
-                        };
-                    }).ToList(),
+                    Properties = p.PartProperties.Select((prop, j) => CreateProperty(partId, partVersion, prop.Name, prop.Value, j)).ToList(),
+                    Parts_SpecialUsage = null,
+                    Parts_CreatedBy_Users_Id = USER_ID,
+                    Parts_CreationTime = DateTime.Now,
                 };
+                if (part.ElementName.IsNullOrEmpty())
+                {
+                    var default_name = part.Properties.First(x => x.Properties_Key == St4.Common.PropertyArticleCode).Properties_Value;
+                    part.Properties.Add(CreateProperty(partId, partVersion, St4.Common.PropertyName, default_name, part.Properties.Count));
+                }
 
                 if (p.Rule is not null)
                 {
-                    part.Properties.Add(new St4.Property()
-                    {
-                        Parts_Id = part.Parts_Id,
-                        Parts_Version = part.Parts_Version,
-                        Localization_TextId = null,
-                        Properties_ComboBoxItemGroup = null,
-                        Properties_GroupCollection = null,
-                        Properties_Id = Guid.NewGuid(),
-                        Properties_Key = Common.PropertyVisibleRule,
-                        // TODO: Replace Get() Call
-                        Properties_Value = ResolveValueSubstitutions(p.Rule.Content, resolver).Get(),
-                        Properties_Position = part.Properties.Count,
-                        Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
-                        Properties_TranslationTexts = null!,
-                        Properties_UseForImport = false,
-                    });
+                    part.Properties.Add(CreateProperty(part.Parts_Id, part.Parts_Version, Common.PropertyVisibleRule, ResolveValueSubstitutions(p.Rule.Content, resolver).Get(), part.Properties.Count));
                 }
                 if (p.PartEnum is not null)
                 {
-                    part.Properties.AddRange(p.PartEnum.Properties.Select((ep, j) => new Property()
-                    {
-                        Properties_ComboBoxItemGroup = ep.EnumVariantId,
-                        Localization_TextId = null,
-                        Parts_Id = part.Parts_Id,
-                        Parts_Version = part.Parts_Version,
-                        Properties_GroupCollection = null!,
-                        Properties_Id = Guid.NewGuid(),
-                        Properties_Key = ep.Name,
-                        // TODO: Replace Get() Call
-                        Properties_Value = ResolveValueSubstitutions(ep.Value, resolver).Get(),
-                        Properties_Position = part.Properties.Count + j,
-                        Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
-                        Properties_TranslationTexts = null!,
-                        Properties_UseForImport = false,
-                    }
-                    ));
+                    part.Properties.AddRange(p.PartEnum.Properties.Select((ep, j) =>
+                        CreateProperty(part.Parts_Id, part.Parts_Version, ep.Name, ResolveValueSubstitutions(ep.Value, resolver).Get(), part.Properties.Count + j, ep.EnumVariantId))
+                    );
                 }
 
                 return part;
             }).ToList();
 
-            var appliableTemplateValues = model.TemplateValues.Where(x => x.ApplyToParts).ToArray();
+
+            var appliableTemplateValues = model.TemplateValues.Where(x => x.ApplyToParts).Concat(new TemplateValue[]
+            {
+            new TemplateValue() { ApplyToParts = true, Name = "ModelId", Value = model.Id.ToString() },
+            new TemplateValue() { ApplyToParts = true, Name = "ModelVersion", Value = model.Version.ToString() }
+            }).ToArray();
             foreach (var part in parts)
             {
-                part.Properties.AddRange(appliableTemplateValues.Select((tv, i) => new Property()
-                {
-                    Localization_TextId = null,
-                    Parts_Id = part.Parts_Id,
-                    Parts_Version = part.Parts_Version,
-                    Properties_GroupCollection = null!,
-                    Properties_ComboBoxItemGroup = null!,
-                    Properties_Id = Guid.NewGuid(),
-                    Properties_Key = tv.Name,
-                    Properties_Value = ResolveValueSubstitutions(tv.Value, resolver).Get(),
-                    Properties_Position = part.Properties.Count + i,
-                    Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
-                    Properties_TranslationTexts = null!,
-                    Properties_UseForImport = false,
-                }));
+                part.Properties.AddRange(appliableTemplateValues.Select(
+                    (tv, i) => CreateProperty(part.Parts_Id, part.Parts_Version, tv.Name, tv.Value, part.Properties.Count + i)
+                ));
             }
 
+            string? modelRule = null;
             if (model.Rule is not null)
-            {
-                var modelRule = ResolveValueSubstitutions(model.Rule.Content, resolver).Get();
-                // TODO: Save Model Rule
-            }
+                modelRule = ResolveValueSubstitutions(model.Rule.Content, resolver).Get();
 
-            return parts;
+            return new ConvertedModel(parts, modelRule, model.Rule?.Name);
 
             // TODO: Replace Get() Call
             string resolver(string s) => provider.GetSubstitution(s).Get();
+
+            Property CreateProperty(Guid partId, int partVersion, string key, string value, int position, Guid? enumVariantId = null)
+            {
+                string? prop_value = "";
+                Guid? localizationTextId = null!;
+                St4.Enums.St4PropertyTranslationState state;
+                Dictionary<string, Localization> localizationTexts = new Dictionary<string, Localization>();
+                if (Common.TranslatablePropertyKeys.Contains(key))
+                {
+                    localizationTextId = Guid.NewGuid();
+                    state = St4.Enums.St4PropertyTranslationState.NotUpToDate;
+                    localizationTexts.Add(key, new Localization()
+                    {
+                        Localization_LanguageKey = Common.FallbackLanguage,
+                        Localization_TextId = localizationTextId.Value,
+                        Localization_Text = ResolveValueSubstitutions(value, resolver).Get()
+                    });
+                }
+                else
+                {
+                    state = St4.Enums.St4PropertyTranslationState.LanguageNeutral;
+                    prop_value = ResolveValueSubstitutions(value, resolver).Get();
+                }
+                    
+                return new St4.Property()
+                {
+                    Parts_Id = partId,
+                    Parts_Version = partVersion,
+                    Localization_TextId = localizationTextId,
+                    Properties_Id = Guid.NewGuid(),
+                    Properties_Key = key,
+                    Properties_Value = prop_value,
+                    Properties_ComboBoxItemGroup = enumVariantId,
+                    Properties_GroupCollection = null,
+                    Properties_TranslationState = state,
+                    Properties_TranslationTexts = localizationTexts,
+                    Properties_UseForImport = false,
+                    Properties_Position = position,
+                };
+            }
         }
 
         public static Result<DictionarySubstitutionProvider, SubstitutionException> ToSubstitutionProvider(

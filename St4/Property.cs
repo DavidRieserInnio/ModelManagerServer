@@ -32,7 +32,7 @@ namespace ModelManagerServer.St4
         // public bool Translated { get; set; }
         public St4PropertyTranslationState Properties_TranslationState { get; set; }
         [NotMapped]
-        public Dictionary<string, LocalizationText> Properties_TranslationTexts { get; set; }
+        public Dictionary<string, Localization> Properties_TranslationTexts { get; set; }
 
         private static int s_count;
         // ReSharper enable InconsistentNaming
@@ -52,15 +52,15 @@ namespace ModelManagerServer.St4
             Properties_Position = s_count++;
             Properties_Value = "";
             Properties_TranslationState = translatable ? St4PropertyTranslationState.NotUpToDate : St4PropertyTranslationState.LanguageNeutral;
-            Properties_TranslationTexts = new Dictionary<string, LocalizationText>();
+            Properties_TranslationTexts = new Dictionary<string, Localization>();
             Localization_TextId = translatable ? Guid.NewGuid() : Guid.Empty;
         }
 
         #endregion
 
-        public void SetLocalizationTexts(Dictionary<Guid, List<LocalizationText>> lt)
+        public void SetLocalizationTexts(Dictionary<Guid, List<Localization>> lt)
         {
-            Properties_TranslationTexts = new Dictionary<string, LocalizationText>();
+            Properties_TranslationTexts = new Dictionary<string, Localization>();
             if (Localization_TextId == null) return;
             if (lt.ContainsKey((Guid)Localization_TextId))
             {
@@ -94,7 +94,7 @@ namespace ModelManagerServer.St4
                 // create entry if not existing yet
                 if (!Properties_TranslationTexts.ContainsKey(languageKey))
                 {
-                    var newValue = new LocalizationText
+                    var newValue = new Localization
                     {
                         Localization_TextId = (Guid)Localization_TextId,
                         Localization_LanguageKey = languageKey

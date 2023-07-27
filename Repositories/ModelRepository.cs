@@ -28,7 +28,8 @@ namespace ModelManagerServer.Repositories
                 .Include(m => m.Parts)
                     .ThenInclude(p => p.Rule)
                 .Include(m => m.Rule)
-                .Include(m => m.TemplateValues);
+                .Include(m => m.TemplateValues)
+                .Include(m => m.RefModelsParts);
         }
 
         public Model? FindModel(Guid id, int version)
@@ -37,7 +38,15 @@ namespace ModelManagerServer.Repositories
             
             var model = this.ModelsWithSubEntities()
                 .FirstOrDefault(m => m.Id == id && m.Version == version);
-            model?.Parts.Sort((p1, p2) => p1.Version - p2.Version);
+
+            if (model != null)
+            {
+                foreach ((var part, var i) in model.RefModelsParts.OrderBy(r => r.Part_Position).Select((e, i) => (e.Part, i)))
+                {
+                    model.Parts[i] = part;
+                    part.PartProperties.Sort((p1, p2) => p1.PropertyPosition.CompareTo(p2.PropertyPosition));
+                }
+            }
 
             return model;
         }

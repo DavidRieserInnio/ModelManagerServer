@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ModelManagerServer;
 using ModelManagerServer.Repositories;
+using ModelManagerServer.St4;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +19,13 @@ var connectionString = builder.Configuration.GetConnectionString("DocuSQL");
 builder.Services.AddDbContext<ModelManagerContext>(options => {
     options.UseSqlServer(connectionString);
 });
+var st4connectionString = builder.Configuration.GetConnectionString("TPEConfigurator");
+builder.Services.AddDbContext<TpeConfiguratorContext>(options => {
+    options.UseSqlServer(st4connectionString);
+});
 
 builder.Services.AddScoped<ModelRepository>();
+builder.Services.AddScoped<St4PartsRepository>();
 
 var app = builder.Build();
 

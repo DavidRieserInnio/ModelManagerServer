@@ -6,6 +6,7 @@
 <form id="kvp_container">
     <input type="text" name="modelId" id="modelId" value="@(Model.ModelId)" hidden />
     <input type="text" name="modelVersion" id="modelVersion" value="@(Model.ModelVersion)" hidden />
+    <select id="configVersionId" name="configVersionId" class="form-select mb-3"></select>
     <div class="input-group mb-3">
         @* TODO: Let User select ConfigVersion and Part to insert after *@
         <span class="input-group-text">Start Position</span>
@@ -29,11 +30,25 @@
             var add_button = $("#add_kvp_button");
             var submit_button = $("#submit_button");
 
+            $.ajax({
+                method: "GET",
+                url: "/Home/GetConfigVersions",
+            }).done(function (response) {
+               console.log(response);
+                for (let option of response
+                    .sort((a, b) => a.ConfigVersions_SubContext.localeCompare(b.ConfigVersions_SubContext))
+                    .map(c => [c.ConfigVersions_Context + " - " + c.ConfigVersions_SubContext + " - " + c.ConfigVersions_SubContextVersion + " - " + c.ConfigVersions_Comment, c.ConfigVersions_Id])
+                    .map(c => $("<option></option>", { text: c[0], value: c[1] }))
+            ) {
+                    $("#configVersionId").append(option);
+                }
+            });
+
             add_button.on('click', () => {
                 $("#kvp_container").append(create_kvp());
             });
             submit_button.on('click', () => {
-                const additional_data = [ "modelId", "modelVersion", "startPosition" ];
+                const additional_data = ["modelId", "modelVersion", "startPosition", "configVersionId"];
                 
                 let data = new FormData();
                 

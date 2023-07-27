@@ -21,13 +21,17 @@ namespace ModelManagerServer.St4
         /// <summary>
         /// Der Wert aus der Datenbank wird mit dem Wert aus dem item properties überschrieben
         /// </summary>
+        [NotMapped]
         public int Parts_Position { get; set; }
 
         public St4PartState Parts_State { get; set; }
-        public string Parts_SpecialUsage { get; set; }
+        public string? Parts_SpecialUsage { get; set; }
 
         public Guid? Parts_ParentId { get; set; }
         public int? Parts_ParentVersion { get; set; }
+
+        public Guid Parts_CreatedBy_Users_Id { get; set; }
+        public DateTime Parts_CreationTime { get; set; }
 
         [NotMapped] public List<Property> Properties { get; set; }
         [NotMapped] public List<PartPermission> PartPermissions { get; set; }
