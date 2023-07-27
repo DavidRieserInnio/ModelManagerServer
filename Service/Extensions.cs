@@ -5,6 +5,11 @@ namespace ModelManagerServer.Service
 {
     public static class Extensions
     {
+        public static List<(K, V)> ToList<K, V>(this IDictionary<K, V> map)
+        {
+            return map.Select(kvp => (kvp.Key, kvp.Value)).ToList();
+        }
+
         public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<KeyValuePair<K, V>> collection)
             where K : notnull
         {

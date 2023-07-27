@@ -3,6 +3,8 @@ using ModelManagerServer.Entities;
 using ModelManagerServer.Repositories;
 using ModelManagerServer.Service;
 using ModelManagerServer.St4.Enums;
+using ModelManagerServer.ViewModels;
+using System.Linq;
 
 namespace ModelManagerServer.Controllers
 {
@@ -57,11 +59,31 @@ namespace ModelManagerServer.Controllers
             return Json(new { success = false, error = res.Get() });
         }
 
+        [HttpGet]
+        public IActionResult ConvertModel(Guid modelId, int modelVersion)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            Model? model = this._modelRepository.FindModel(modelId, modelVersion);
+            if (model is null) return RedirectToAction(nameof(Index));
+
+            var expressions = ConversionService.FindExpressions(model).Select(k => (k, "")).ToDictionary();
+            var values = model.TemplateValues.Select(t => (t.Name, t.Value));
+            foreach (var (Name, Value) in values) expressions[Name] = Value;
+            
+            expressions.Remove(nameof(modelId));
+            expressions.Remove(nameof(modelVersion));
+            expressions.Remove("startPosition");
+
+            return View("EditValues", new EditValuesViewModel(modelId, modelVersion, expressions.ToList()));
+        }
+
         /* TODO: Create Preview Endpoint using ProjectConfigurator Code? */
         [HttpPost]
         public IActionResult ConvertModel(
             Guid modelId,
             int modelVersion,
+            int startPosition,
             IFormCollection kvps
         )
         {
@@ -70,12 +92,21 @@ namespace ModelManagerServer.Controllers
             Model? model = this._modelRepository.FindModel(modelId, modelVersion);
             if (model is not null)
             {
-                // TODO: Get Position on where to insert Parts
                 Dictionary<string, string> userValues = kvps.ToDictionary();
-                IList<St4.Part>? parts = ConversionService.ConvertModel(model, userValues, 0);
+                var parts = ConvertModel(model, userValues, startPosition);
+                // TODO: Store Parts in St4 Database
             }
-            // TODO
             return Json(new { success = model is not null });
+        }
+
+        private static List<St4.Part> ConvertModel(
+            Model model, Dictionary<string, string> userValues, int startPosition
+        )
+        {
+            var parts = ConversionService.ConvertModel(model, userValues, 0);
+            for (var i = 0; i < parts.Count; i++) 
+                parts[i].Parts_Position = startPosition + i;
+            return parts;
         }
 
         public IActionResult GetMissingValues(

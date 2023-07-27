@@ -15,7 +15,6 @@ namespace ModelManagerServer.Entities
         public string Name { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public St4ElementType Type { get; set; }
-        public string ElementText { get; set; }
 
         public Guid? Rule_Id { get; set; }
         public Guid? Enum_Id { get; set; }

@@ -1,0 +1,83 @@
+﻿
+@using ModelManagerServer.ViewModels;
+
+@model EditValuesViewModel
+
+<form id="kvp_container">
+    <input type="text" name="modelId" id="modelId" value="@(Model.ModelId)" hidden />
+    <input type="text" name="modelVersion" id="modelVersion" value="@(Model.ModelVersion)" hidden />
+    <div class="input-group mb-3">
+        @* TODO: Let User select ConfigVersion and Part to insert after *@
+        <span class="input-group-text">Start Position</span>
+        <input type="number" class="form-control" name="startPosition" id="startPosition" value="0" />
+    </div>
+    @foreach ((string key, string value, int idx) in Model.Values
+                    .Select((kvp, idx) => (kvp.Item1, kvp.Item2, idx)))
+    {
+        <div class="input-group mb-3 kvp">
+            <input type="text" class="form-control" value="@(key)" placeholder="Key">
+            <input type="text" class="form-control" value="@(value)" placeholder="Value">
+        </div>
+    }
+</form>
+<button class="btn btn-success" id="add_kvp_button">Add Key Value Pair</button>
+<button class="btn btn-primary" id="submit_button">Submit</button>
+
+@section Scripts {
+    <script>
+        $(function () {
+            var add_button = $("#add_kvp_button");
+            var submit_button = $("#submit_button");
+
+            add_button.on('click', () => {
+                $("#kvp_container").append(create_kvp());
+            });
+            submit_button.on('click', () => {
+                const additional_data = [ "modelId", "modelVersion", "startPosition" ];
+                
+                let data = new FormData();
+                
+                for (let d of additional_data) {
+                    data.append(d, $("#" + d).val() || "");
+                }
+
+                let kvps = $(".kvp").children();
+                let num_kvps = kvps.length;
+
+                for (let i = 0; i < num_kvps; i += 2) {
+                    let key = kvps.eq(i).val();
+                    let value = kvps.eq(i+1).val() || "";
+                    if (key) 
+                        data.append(key, value);
+                }
+
+                $.ajax({
+                    method: "POST",
+                    url: "/Model/ConvertModel",
+                    dataType: 'json',
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                }).done(function(response) {
+                    alert(response);
+                });
+            });
+        });
+
+        function create_kvp() {
+            return $("<div></div>", {
+                class: "input-group mb-3 kvp"
+            })
+            .append($("<input/>", {
+                type: "text",
+                class: "form-control",
+                placeholder: "Key"
+            }))
+            .append($("<input/>", {
+                type: "text",
+                class: "form-control",
+                placeholder: "Value"
+            }))
+        }
+    </script>
+}

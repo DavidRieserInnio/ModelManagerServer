@@ -44,13 +44,21 @@
                                 </a>
                             </td>
                             <td>
-                                <a type="button" onclick="open_set_state_modal('@(model.Id)', @(model.Version))">
+                                <a onclick="open_set_state_modal('@(model.Id)', @(model.Version))">
                                     <i class="fa-solid fa-wrench"></i>
                                 </a>
                             </td>
                             @if (model.State.CanConvertModel())
                             {
-                                <td><i class="fa-solid fa-paper-plane"></i></td>
+                                <td>
+                                    <a asp-action="ConvertModel" 
+                                        asp-controller="Model"
+                                        asp-route-modelId="@(model.Id)" 
+                                        asp-route-modelVersion=@(model.Version)
+                                    >
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </a>
+                                </td>
                             } 
                             else 
                             {

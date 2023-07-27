@@ -1,14 +1,27 @@
 ﻿using ModelManagerServer.Entities;
 using ModelManagerServer.Models;
 using ModelManagerServer.Models.Exceptions;
-using ModelManagerServer.Models.Interfaces;
 using ModelManagerServer.St4;
+using ModelManagerServer.Service;
 
 namespace ModelManagerServer.Service
 {
     public static class ConversionService
     {
         public const uint DEFAULT_MAX_SUBSTITUTION_DEPTH = 50;
+
+        public static List<string> FindExpressions(Model model)
+        {
+            var dfault = new List<string>(0);
+            return model.TemplateValues.SelectMany(t => StringService.FindExpressions(t.Value).GetOr(dfault))
+                .Concat(model.Rule is null ? dfault : StringService.FindExpressions(model.Rule.Content).GetOr(dfault))
+                .Concat(model.Parts.SelectMany(p =>
+                {
+                    return p.PartProperties.SelectMany(prop => StringService.FindExpressions(prop.Value).GetOr(dfault))
+                        .Concat(p.PartEnum is null ? dfault : p.PartEnum.Properties.SelectMany(prop => StringService.FindExpressions(prop.Value).GetOr(dfault)));
+                }))
+            .ToList();
+        }
 
         public static List<St4.Part> ConvertModel(
             Model model,
@@ -18,13 +31,16 @@ namespace ModelManagerServer.Service
         {
             var tmpvls = model.TemplateValues;
             var res = tmpvls.ToSubstitutionProvider(userDefinedSubstitutions);
-            // TODO: Create Substitution Provider for Part "Article Codes"
+            var partPropertySubProvider = new DictionarySubstitutionProvider(
+                model.Parts.SelectMany(p => p.PartProperties
+                    .Select(prop => ($"{p.Name}[{prop.Name}]", prop.Value)))
+                .ToDictionary()
+            );
+            var provider = new SubstitutionProviderCollection(res.Get(), partPropertySubProvider);
             // TODO: Simplify this Method
 
             if (!res.IsOk)
                 throw res.GetError();
-
-            var provider = res.Get();
 
             var parts = model.Parts.Select((p, i) =>
             {
@@ -57,7 +73,7 @@ namespace ModelManagerServer.Service
                             Properties_Id = Guid.NewGuid(),
                             Properties_Key = prop.Name,
                             // TODO: Replace Get() Call
-                            Properties_Value = StringService.ReplaceOccurrences(prop.Value, resolver).Get(),
+                            Properties_Value = ResolveValueSubstitutions(prop.Value, resolver).Get(),
                             Properties_ComboBoxItemGroup = null,
                             Properties_GroupCollection = null,
                             Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
@@ -81,7 +97,7 @@ namespace ModelManagerServer.Service
                         Properties_Id = Guid.NewGuid(),
                         Properties_Key = Common.PropertyVisibleRule,
                         // TODO: Replace Get() Call
-                        Properties_Value = StringService.ReplaceOccurrences(p.Rule.Content, resolver).Get(),
+                        Properties_Value = ResolveValueSubstitutions(p.Rule.Content, resolver).Get(),
                         Properties_Position = part.Properties.Count,
                         Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
                         Properties_TranslationTexts = null!,
@@ -100,7 +116,7 @@ namespace ModelManagerServer.Service
                         Properties_Id = Guid.NewGuid(),
                         Properties_Key = ep.Name,
                         // TODO: Replace Get() Call
-                        Properties_Value = StringService.ReplaceOccurrences(ep.Value, resolver).Get(),
+                        Properties_Value = ResolveValueSubstitutions(ep.Value, resolver).Get(),
                         Properties_Position = part.Properties.Count + j,
                         Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
                         Properties_TranslationTexts = null!,
@@ -124,7 +140,7 @@ namespace ModelManagerServer.Service
                     Properties_ComboBoxItemGroup = null!,
                     Properties_Id = Guid.NewGuid(),
                     Properties_Key = tv.Name,
-                    Properties_Value = StringService.ReplaceOccurrences(tv.Value, resolver).Get(),
+                    Properties_Value = ResolveValueSubstitutions(tv.Value, resolver).Get(),
                     Properties_Position = part.Properties.Count + i,
                     Properties_TranslationState = St4.Enums.St4PropertyTranslationState.NotUpToDate,
                     Properties_TranslationTexts = null!,
@@ -141,7 +157,7 @@ namespace ModelManagerServer.Service
             string resolver(string s) => provider.GetSubstitution(s).Get();
         }
 
-        public static Result<ISubstitutionProvider, SubstitutionException> ToSubstitutionProvider(
+        public static Result<DictionarySubstitutionProvider, SubstitutionException> ToSubstitutionProvider(
             this List<TemplateValue> templateValues,
             Dictionary<string, string> additionalSubstitutions,
             uint max_substitution_depth = DEFAULT_MAX_SUBSTITUTION_DEPTH

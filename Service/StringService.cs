@@ -6,7 +6,7 @@ namespace ModelManagerServer.Service
 {
     public static class StringService
     {
-        private static readonly Delimiters DEFAULT_DELIMITERS = new('{', '}');
+        private static readonly Delimiters DEFAULT_DELIMITERS = new('`', '`');
         
         public static Result<string?, SubstitutionException> ReplaceOccurrences(
             string template, Func<string, string?> resolver
@@ -87,6 +87,17 @@ namespace ModelManagerServer.Service
             var positions = FindExpressionPositions(template, delimiters);
             return positions.Map(
                 pos => pos.Select(expr => template.Substring(expr.ExpressionStart, expr.Length)).ToList(), 
+                exc => exc
+           );
+        }
+
+        public static Result<List<string>, SubstitutionException> FindExpressions(
+            string template
+        )
+        {
+            var positions = FindExpressionPositions(template, DEFAULT_DELIMITERS);
+            return positions.Map(
+                pos => pos.Select(expr => template.Substring(expr.ExpressionStart, expr.Length)).ToList(),
                 exc => exc
            );
         }
