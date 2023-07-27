@@ -9,7 +9,7 @@ namespace ModelManagerServer.St4
     {
         public static bool DevMode { get; internal set; } = true;
         public static Guid AppId_Configurator { get; } = Guid.Parse("cc96031c-8e2e-49fd-af1f-c734f55948fe");
-        public static string FallbackLanguage { get; } = "de";
+        public const string FallbackLanguage = "de";
         public static string ComboEmptyValue { get; } = "--";
         public static string TextBoxMaxLengthDefaultValue { get; } = "1000";
         public static bool CheckForSpecialPartPreliminary { get; } = false;

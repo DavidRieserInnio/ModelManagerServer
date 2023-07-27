@@ -1,6 +1,7 @@
 ﻿using ModelManagerServer.St4.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace ModelManagerServer.St4
@@ -30,6 +31,7 @@ namespace ModelManagerServer.St4
 
         // public bool Translated { get; set; }
         public St4PropertyTranslationState Properties_TranslationState { get; set; }
+        [NotMapped]
         public Dictionary<string, LocalizationText> Properties_TranslationTexts { get; set; }
 
         private static int s_count;

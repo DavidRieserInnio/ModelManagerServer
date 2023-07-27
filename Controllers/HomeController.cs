@@ -1,10 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ModelManagerServer.St4;
 using ModelManagerServer.St4.Enums;
 
 namespace ModelManagerServer.Controllers
 {
     public class HomeController : Controller
     {
+        private St4PartsRepository _partsRepository;
+
+        public HomeController(St4PartsRepository partsRepository)
+        {
+            this._partsRepository = partsRepository;
+        }
+
         public IActionResult Index()
         {
             return RedirectToAction(nameof(ModelController.Index), "Model");
@@ -13,30 +21,19 @@ namespace ModelManagerServer.Controllers
         [HttpGet]
         public List<St4.RightGroup> GetRightGroups()
         {
-            return new List<St4.RightGroup> { new St4.RightGroup
-                {
-                    RightGroups_Description = "Test",
-                    RightGroups_Id = Guid.Parse("E9FE8BFA-D3AA-40E4-9A5B-305458BAA8BB"),
-                    RightGroups_Name = "External user for channel partners and customers"
-                },
-                new St4.RightGroup
-                {
-                    RightGroups_Description = "Test",
-                    RightGroups_Id = Guid.Parse("C75B7CCA-95FA-4816-A3A7-58AF77006347"),
-                    RightGroups_Name = "System Admins"
-                },
-            };
+            return this._partsRepository.GetRightGroups().ToList();
         }
 
         [HttpGet]
         public List<St4.Milestone> GetMilestones()
         {
-            return new List<St4.Milestone> { new St4.Milestone
-                {
-                    Milestones_Id = Guid.NewGuid(),
-                    Milestones_Name = "Test",
-                }
-            };
+            return this._partsRepository.GetMilestones().ToList();
+        }
+
+        [HttpGet]
+        public IEnumerable<ConfigVersion> GetConfigVersions()
+        {
+            return this._partsRepository.GetAllConfigVersions().ToList();
         }
 
         [HttpGet]

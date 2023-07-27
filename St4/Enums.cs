@@ -16,6 +16,12 @@ namespace ModelManagerServer.St4.Enums
         Preliminary,
     }
 
+    public enum CompanyRelation
+    {
+        Internal = 1,
+        External = 2
+    }
+
     public enum St4RightGroup
     {
         [Description("Admin Group")]
@@ -91,7 +97,7 @@ namespace ModelManagerServer.St4.Enums
     }
 
     /// <inheritdoc cref="St4ApplicationStatus" />
-    public enum St4RuleMethodState
+    public enum RuleMethodState
     {
         Working = St4ConfigState.Working,
         Released = St4ConfigState.Released
@@ -156,7 +162,7 @@ namespace ModelManagerServer.St4.Enums
     }
 
     /// <inheritdoc cref="St4ApplicationStatus" />
-    public enum St4MethodType
+    public enum MethodType
     {
         Executable = 1,
         Help = 2,

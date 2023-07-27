@@ -2,6 +2,7 @@
 using ModelManagerServer.Entities;
 using ModelManagerServer.Repositories;
 using ModelManagerServer.Service;
+using ModelManagerServer.St4;
 using ModelManagerServer.St4.Enums;
 using ModelManagerServer.ViewModels;
 
@@ -98,14 +99,25 @@ namespace ModelManagerServer.Controllers
             return Json(new { success = model is not null });
         }
 
-        private static List<St4.Part> ConvertModel(
+        private List<St4.Part> ConvertModel(
             Model model, Dictionary<string, string> userValues, int startPosition
         )
         {
             var parts = ConversionService.ConvertModel(model, userValues, 0);
-            for (var i = 0; i < parts.Count; i++) 
-                parts[i].Parts_Position = startPosition + i;
+
+            // TODO St4PartsRepository.MoveParts();
+
             return parts;
+        }
+
+        private bool SaveConvertedModel(ConfigVersion configVersion, List<St4.Part> parts)
+        {
+            int start = parts.Min(x => x.Parts_Position);
+            int end = parts.Max(x => x.Parts_Position);
+            // St4PartsRepository.MoveParts(configVersion.ConfigVersions_Id, start, end - start);
+            // parts.ForEach(part => St4PartsRepository.AddPart(configVersion, part));
+
+            return true;
         }
 
         [HttpPost]

@@ -179,7 +179,11 @@ namespace ModelManagerServer.Service
                 }));
             }
 
-            // TODO: Add Model Rule
+            if (model.Rule is not null)
+            {
+                var modelRule = ResolveValueSubstitutions(model.Rule.Content, resolver).Get();
+                // TODO: Save Model Rule
+            }
 
             return parts;
 
