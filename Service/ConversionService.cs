@@ -3,6 +3,7 @@ using ModelManagerServer.Models;
 using ModelManagerServer.Models.Exceptions;
 using ModelManagerServer.St4;
 using ModelManagerServer.Service;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ModelManagerServer.Service
 {
@@ -31,6 +32,12 @@ namespace ModelManagerServer.Service
         {
             var tmpvls = model.TemplateValues;
             var res = tmpvls.ToSubstitutionProvider(userDefinedSubstitutions);
+            var modelMetadataSubstitutionProvider = new DictionarySubstitutionProvider(new Dictionary<string, string>()
+            {
+                { "modelName", model.Name },
+                { "modelVersion", model.Version.ToString() },
+                { "modelId", model.Id.ToString() }
+            });
             var partPropertySubProvider = new DictionarySubstitutionProvider(
                 model.Parts.SelectMany(p => p.PartProperties
                     .Select(prop => ($"{p.Name}[{prop.Name}]", prop.Value)))
@@ -60,7 +67,7 @@ namespace ModelManagerServer.Service
                     })
                     .ToDictionary()
             );
-            var provider = new SubstitutionProviderCollection(res.Get(), partPropertySubProvider, partEnumSubProvider);
+            var provider = new SubstitutionProviderCollection(res.Get(), modelMetadataSubstitutionProvider, partPropertySubProvider, partEnumSubProvider);
             // TODO: Simplify this Method
 
             if (!res.IsOk)
@@ -173,7 +180,6 @@ namespace ModelManagerServer.Service
             }
 
             // TODO: Add Model Rule
-            // TODO: Add Group and Circuit
 
             return parts;
 
@@ -189,7 +195,7 @@ namespace ModelManagerServer.Service
         {
             var dict = templateValues.ToDictionary(t => t.Name, t => t.Value);
             // NOTE: User Input overrides pre-defined Template Values.
-            foreach (var (k, v) in additionalSubstitutions) dict[k] = v;
+            foreach (var (k, v) in additionalSubstitutions.Where(kvp => !kvp.Value.IsNullOrEmpty())) dict[k] = v;
             // NOTE: DictionarySubstitutionProvider takes a reference to the Dictionary.
             //       This means changing the Dictionary also changes the DictionarySubstitutionProvider.
             DictionarySubstitutionProvider sub_provider = dict;

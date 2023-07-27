@@ -4,7 +4,6 @@ using ModelManagerServer.Repositories;
 using ModelManagerServer.Service;
 using ModelManagerServer.St4.Enums;
 using ModelManagerServer.ViewModels;
-using System.Linq;
 
 namespace ModelManagerServer.Controllers
 {
@@ -107,22 +106,6 @@ namespace ModelManagerServer.Controllers
             for (var i = 0; i < parts.Count; i++) 
                 parts[i].Parts_Position = startPosition + i;
             return parts;
-        }
-
-        public IActionResult GetMissingValues(
-            Guid modelId,
-            int modelVersion
-        )
-        {
-            if (!ModelState.IsValid) return BadRequest();
-
-            Model? model = this._modelRepository.FindModel(modelId, modelVersion);
-
-            if (model is null) return NotFound();
-
-            // TODO: Get missing Values;
-
-            return Ok(new List<string>());
         }
 
         [HttpPost]
