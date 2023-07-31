@@ -102,7 +102,9 @@ namespace ModelManagerServer.Service
                 };
                 if (part.ElementName.IsNullOrEmpty())
                 {
-                    var default_name = part.Properties.First(x => x.Properties_Key == St4.Common.PropertyArticleCode).Properties_Value;
+                    // TODO: This throws if neither an ArticleCode nor an ElementText is given!
+                    var default_name = part.Properties.FirstOrDefault(x => x.Properties_Key == St4.Common.PropertyArticleCode)?.Properties_Value ??
+                        part.Properties.First(x => x.Properties_Key == St4.Common.PropertyElementText)?.Properties_Value;
                     part.Properties.Add(CreateProperty(partId, partVersion, St4.Common.PropertyName, default_name, part.Properties.Count));
                 }
 
@@ -119,7 +121,6 @@ namespace ModelManagerServer.Service
 
                 return part;
             }).ToList();
-
 
             var appliableTemplateValues = model.TemplateValues.Where(x => x.ApplyToParts).Concat(new TemplateValue[]
             {
